@@ -96,7 +96,7 @@ begriff;uebersetzung;lektion;notiz
 "aureus, a, um";"golden, aus Gold";39;A_B
 "auris, auris (f)";"Ohr";68;A_B
 "aut";"oder";64;A_B
-"autem (nachgestellt)";"aber, andererseits";18;A_B
+"autem (nachgestellt)";"aber, andererseits";18;A_B|Wdh-L70
 "auxiliō venīre";"zu Hilfe kommen";18;A_B
 "auxilium";"Hilfe";17;A_B
 "avidus, a, um (m. Gen.)";"(be)gierig (nach)";66;A_B
@@ -173,7 +173,7 @@ begriff;uebersetzung;lektion;notiz
 "conicere, coniciō, coniēcī, coniectum";"werfen, folgern, vermuten";52;A_B
 "coniunx, coniugis (m/f)";"Gatte, Gattin";53;A_B
 "cōnsīdere, cōnsīdō, cōnsēdī, cōnsessum";"sich niederlassen";53;A_B
-"cōnsilium";"Beratung, Beschluss, Plan, Rat";11;A_B
+"cōnsilium";"Beratung, Beschluss, Plan, Rat";11;A_B|Wdh-L70
 "cōnsilium capere";"einen Plan (Entschluss) fassen";29;A_B
 "cōnsistere, cōnsistō, cōnstitī";"stehen bleiben, haltmachen, sich aufstellen";17;A_B
 "cōnspectus, cōnspectūs (m)";"Anblick, Blickfeld";45;A_B
@@ -187,14 +187,14 @@ begriff;uebersetzung;lektion;notiz
 "contemnere, contemnō, contempsī, contemptum";"verachten, nicht beachten";56;A_B
 "contendere, contendō, contendī";"kämpfen; eilen; behaupten";43;A_B
 "contrā (Präp. m. Akk.)";"gegen";43;A_B
-"convenīre, conveniō, convēnī";"zusammenkommen, zusammenpassen";32;A_B
+"convenīre, conveniō, convēnī";"zusammenkommen, zusammenpassen";32;A_B|Wdh-L72
 "convertere, convertō, convertī, conversum";"verändern, (um)wenden";67;A_B
-"cōpia";"Menge, Vorrat, Möglichkeit; Pl. Truppen";6;A_B
+"cōpia";"Menge, Vorrat, Möglichkeit; Pl. Truppen";6;A_B|Wdh-L71
 "Coriolānus";"röm. Patrizier";61;A_B
 "corpus, corporis (n)";"Körper, Leichnam";47;A_B
 "cotīdiē (Adv.)";"täglich";66;A_B
 "creāre, creō";"erschaffen, wählen";19;A_B
-"crēdere, crēdō, crēdidī";"glauben, anvertrauen";37;A_B
+"crēdere, crēdō, crēdidī";"glauben, anvertrauen";37;A_B|Wdh-L71
 "Crēta";"Kreta, Insel im Mittelmeer";10;A_B
 "crīmen, crīminis (n)";"Verbrechen, Vorwurf";47;A_B
 "crīminī dare";"zum Vorwurf machen";61;A_B
@@ -230,7 +230,7 @@ begriff;uebersetzung;lektion;notiz
 "decimus, a, um";"der, die, das zehnte";24;C_D
 "dēdūcere, dēdūcō, dēdūxī, dēductum";"hinführen, wegführen";61;C_D
 "dēesse, dēsum";"abwesend sein, fehlen";17;C_D
-"dēfendere, dēfendō, dēfendī, dēfēnsum";"verteidigen (vor / gegen)";35;C_D
+"dēfendere, dēfendō, dēfendī, dēfēnsum";"verteidigen (vor / gegen)";35;C_D|Wdh-L72
 "deinde (Adv.)";"dann, darauf";45;C_D
 "dēlectāre, dēlectō";"erfreuen, unterhalten";8;C_D
 "dēlēre, dēleō, dēlēvī, dēlētum";"zerstören, vernichten";6;C_D
@@ -348,7 +348,7 @@ begriff;uebersetzung;lektion;notiz
 "fōns, fontis (m)";"Quelle, Ursprung";24;F_I
 "fōrma";"Form, Gestalt, Schönheit";42;F_I
 "fōrmōsus, a, um";"schön, hübsch";56;F_I
-"fortis, e";"kräftig, tapfer";35;F_I
+"fortis, e";"kräftig, tapfer";35;F_I|Wdh-L70
 "fortūna";"Schicksal, Glück";37;F_I
 "forum";"Forum, Marktplatz";11;F_I
 "frangere, frangō, frēgī, frāctum";"zerbrechen (trans.)";61;F_I
@@ -369,7 +369,7 @@ begriff;uebersetzung;lektion;notiz
 "gaudēre (m. Abl.)";"sich freuen über";30;F_I
 "auxiliō gaudēre";"sich über die Hilfe freuen";30;F_I
 "gemitus, gemitūs (m)";"Seufzen, Traurigkeit";40;F_I
-"gēns, gentis (f)";"Familienverband, Stamm, Volk";47;F_I
+"gēns, gentis (f)";"Familienverband, Stamm, Volk";47;F_I|Wdh-L71
 "genus, generis (n)";"Abstammung, Art, Geschlecht";48;F_I
 "gerere, gerō, gessī, gestum";"ausführen, führen, tragen";39;F_I
 "bellum gerere";"Krieg führen";39;F_I
@@ -408,7 +408,7 @@ begriff;uebersetzung;lektion;notiz
 "hūc (Adv.)";"hierher";51;F_I
 "iacēre, iaceō";"liegen";27;F_I
 "iam (Adv.)";"schon, bereits; nun";4;F_I
-"nōn iam";"nicht mehr";4;F_I
+"nōn iam";"nicht mehr";4;F_I|Wdh-L70
 "ibī (Adv.)";"dort";3;F_I
 "Īcarus";"Ikarus, Sohn des Dädalus";55;F_I
 "īdem, eadem, idem";"derselbe, der gleiche";62;F_I
@@ -536,7 +536,7 @@ begriff;uebersetzung;lektion;notiz
 "mīrus, a, um";"erstaunlich, sonderbar";25;L_N
 "miser, misera, miserum";"arm, erbärmlich, unglücklich";15;L_N
 "miseria";"Not, Unglück";56;L_N
-"mittere, mittō, mīsī, missum";"(los)lassen, schicken";22;L_N
+"mittere, mittō, mīsī, missum";"(los)lassen, schicken";22;L_N|Wdh-L72
 "modestia";"Bescheidenheit, Anstand";27;L_N
 "modus";"Art, Weise; Maß";50;L_N
 "moenia, moenium (n Pl.)";"Mauern, Stadtmauern";49;L_N
@@ -593,7 +593,7 @@ begriff;uebersetzung;lektion;notiz
 "nōbilis, e";"vornehm";16;O_P
 "nōmen, nōminis (n)";"Name";47;O_P
 "nōn";"nicht";1;O_P
-"nōn iam";"nicht mehr";4;O_P
+"nōn iam";"nicht mehr";4;O_P|Wdh-L70
 "nōndum";"noch nicht";4;O_P
 "nōnne";"etwa nicht?";18;O_P
 "nōnnūllī, ae, a";"einige, manche";44;O_P
@@ -638,7 +638,7 @@ begriff;uebersetzung;lektion;notiz
 "ostendere, ostendō, ostendī";"zeigen, erklären";16;O_P
 "paene (Adv.)";"fast";51;O_P
 "Palātium";"der Palatin, einer der sieben Hügel Roms";36;O_P
-"parāre, parō";"(vor)bereiten, vorhaben";8;O_P
+"parāre, parō";"(vor)bereiten, vorhaben";8;O_P|Wdh-L72
 "parcere, parcō, pepercī (m. Dat.)";"schonen, verschonen";60;O_P
 "captīvīs parcere";"die Kriegsgefangenen schonen (ver)schonen";60;O_P
 "pārēre, pāreō";"gehorchen";2;O_P
@@ -654,11 +654,11 @@ begriff;uebersetzung;lektion;notiz
 "paulātim (Adv.)";"allmählich";31;O_P
 "paulō post";"(ein) wenig später";30;O_P
 "pauper, pauperis";"arm";44;O_P
-"pāx, pācis (f)";"Frieden";51;O_P
+"pāx, pācis (f)";"Frieden";51;O_P|Wdh-L72
 "pectus, pectoris (n)";"Brust, Herz";47;O_P
 "pecūnia";"Geld, Vermögen";20;O_P
 "pellere, pellō, pepulī, pulsum";"stoßen, schlagen, (ver)treiben";34;O_P
-"per (Präp. m. Akk.)";"durch, hindurch";16;O_P
+"per (Präp. m. Akk.)";"durch, hindurch";16;O_P|Wdh-L70
 "perdere, perdō, perdidī, perditum";"verlieren, verschwenden, zugrunde richten";45;O_P
 "pergere, pergō, perrēxī";"aufbrechen; weitermachen";67;O_P
 "perīculum";"Gefahr";25;O_P
@@ -769,7 +769,7 @@ begriff;uebersetzung;lektion;notiz
 "quis?";"wer?";3;R_S
 "quō?";"wohin? wo?";51;R_S
 "quod (Subj.)";"weil; dass";20;R_S
-"quoque (nachgestellt)";"auch";45;R_S
+"quoque (nachgestellt)";"auch";45;R_S|Wdh-L70
 "Ego quoque gaudeō.";"Auch ich freue mich.";45;R_S
 "quot?";"wie viel(e)?";47;R_S
 "Quot senātōrēs adsunt?";"Wie viele Senatoren sind da?";47;R_S
@@ -852,7 +852,7 @@ begriff;uebersetzung;lektion;notiz
 "sextus, a, um";"der (die, das) sechste";51;S_T
 "sī (Subj.)";"wenn, falls";20;S_T
 "sibi (Dat.)";"sich";32;S_T
-"sīc (Adv.)";"so";8;S_T
+"sīc (Adv.)";"so";8;S_T|Wdh-L72
 "Sicilia";"Sizilien";10;S_T
 "sīgnum";"Merkmal, Zeichen; Statue";34;S_T
 "silentium";"Schweigen";62;S_T
@@ -869,7 +869,7 @@ begriff;uebersetzung;lektion;notiz
 "sōl, sōlis (m)";"Sonne";24;S_T
 "sollicitāre, sollicitō";"aufhetzen, beunruhigen, erregen";45;S_T
 "sōlum (Adv.)";"nur";22;S_T
-"solvere, solvō, solvī, solūtum";"lösen, auflösen; bezahlen";55;S_T
+"solvere, solvō, solvī, solūtum";"lösen, auflösen; bezahlen";55;S_T|Wdh-L73
 "poenam solvere";"Strafe bezahlen, bestraft werden";55;S_T
 "vincula solvere";"die Fesseln lösen";55;S_T
 "somnus";"Schlaf";55;S_T
@@ -911,10 +911,10 @@ begriff;uebersetzung;lektion;notiz
 "Syria";"Syrien";9;S_T
 "tabula";"Schreib-Tafel, Gemälde";4;S_T
 "tacēre, taceō";"schweigen, verschweigen";2;S_T
-"tālis, e";"derartig, ein solcher, so beschaffen";40;S_T
+"tālis, e";"derartig, ein solcher, so beschaffen";40;S_T|Wdh-L71
 "tam ... quam";"so ... wie";21;S_T
 "tam quam ... wie";"so ... wie";21;S_T
-"tamen";"dennoch, jedoch";6;S_T
+"tamen";"dennoch, jedoch";6;S_T|Wdh-L71
 "tamquam (Adv.)";"wie wenn, als ob";64;S_T
 "tandem (Adv.)";"endlich";7;S_T
 "tangere, tangō, tetigī, tāctum";"berühren";53;S_T
@@ -932,7 +932,7 @@ begriff;uebersetzung;lektion;notiz
 "tēlum";"Angriffs-Waffe, Geschoss";46;T_V
 "templum";"Tempel";11;T_V
 "tempestās, tempestātis (f)";"(günstige) Zeit, Umstände";43;T_V
-"tempus, temporis (n)";"Zeit";27;T_V
+"tempus, temporis (n)";"Zeit";27;T_V|Wdh-L71
 "brevī tempore";"nach kurzer Zeit, bald darauf";59;T_V
 "tenēbrae, tenēbrārum (f Pl.)";"Dunkelheit, Finsternis";27;T_V
 "tenēre, teneō";"halten, festhalten, besitzen";4;T_V
@@ -948,8 +948,8 @@ begriff;uebersetzung;lektion;notiz
 "timēre, nē";"fürchten, dass";43;T_V
 "timor, timōris (m)";"Angst, Furcht";65;T_V
 "torquēre, torqueō, torsī, tortum";"drehen, quälen";25;T_V
-"tōtus, a, um (Gen. tōtīus, Dat. tōtī)";"ganz, gesamt";50;T_V
-"trādere, trādō, trādidī, trāditum";"übergeben";62;T_V
+"tōtus, a, um (Gen. tōtīus, Dat. tōtī)";"ganz, gesamt";50;T_V|Wdh-L72
+"trādere, trādō, trādidī, trāditum";"übergeben";62;T_V|Wdh-L73
 "trahere, trahō, trāxī, trāctum";"schleppen, ziehen";16;T_V
 "trāns (Präp. m. Akk.)";"über (... hinaus), jenseits";42;T_V
 "trānsīre, trānseō, trānsiī";"über die Berge / jenseits der Berge durchqueren, hinübergehen, überschreiten";63;T_V
@@ -985,8 +985,8 @@ begriff;uebersetzung;lektion;notiz
 "ūsque ad (m. Akk.)";"bis zum, bis (zu)";64;T_V
 "ūsuī esse";"von Nutzen sein, nützlich sein";64;T_V
 "ūsus, ūsūs (m)";"Nutzen, Benutzung";61;T_V
-"ut (Adv.)";"wie";14;T_V
-"ut (Subj. m. Konj.)";"dass, sodass, damit; um zu (m. Inf.)";61;T_V
+"ut (Adv.)";"wie";14;T_V|Wdh-L72
+"ut (Subj. m. Konj.)";"dass, sodass, damit; um zu (m. Inf.)";61;T_V|Wdh-L72
 "uxor, uxōris (f)";"Ehefrau";19;T_V
 "valē! valēte!";"leb wohl! lebt wohl!";7;V
 "valēre, valeō";"gesund sein, stark sein, Einfluss haben";7;V
@@ -1016,7 +1016,7 @@ begriff;uebersetzung;lektion;notiz
 "vincula solvere";"die Fesseln lösen";55;V
 "vincula, vinculōrum (n Pl.)";"Band, Fessel; Pl. Gefängnis";54;V
 "in vincula dare";"in Fesseln legen, gefangen";54;V
-"vincere, vincō, vīcī, victum";"(be)siegen, überwinden";1;V
+"vincere, vincō, vīcī, victum";"(be)siegen, überwinden";1;V|Wdh-L73
 "villa";"Haus, Landhaus";1;V
 "vigintī (indekl.)";"zwanzig";20;V
 "vidēre, videō, vīdī, vīsum";"sehen";7;V
@@ -1034,7 +1034,7 @@ begriff;uebersetzung;lektion;notiz
 "violāre, violō";"verwunden, verletzen, entehren";33;V
 "virgō, virginis (f)";"Mädchen, Jungfrau";53;V
 "virtūs, virtūtis (f)";"Tapferkeit, Tüchtigkeit, Leistung";23;V
-"vīs, f (Akk. vim, Abl. vī)";"Gewalt, Kraft, Menge";52;V
+"vīs, f (Akk. vim, Abl. vī)";"Gewalt, Kraft, Menge";52;V|Wdh-L70
 "vīta";"Leben";15;V
 "vīvere, vīvō, vīxī";"leben";32;V
 "vītāre, vītō";"meiden, vermeiden";55;V
@@ -1125,3 +1125,5 @@ begriff;uebersetzung;lektion;notiz
 "inquam (3. Pers. Sg. inquit)";"sag(t)e ich";73;neu-L73
 "rumpere, rumpō, rūpī, ruptum";"zerbrechen";73;neu-L73
 "aut ... aut";"entweder ... oder";73;neu-L73
+"ita (Adv.)";"so";70;Wdh-L70
+"vinculum";"das Band, die Fessel; Pl. das Gefängnis";73;Wdh-L73
