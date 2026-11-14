@@ -81,6 +81,10 @@
     font-size: 15px; text-align: left; background: #fff; color: var(--ink); font-family: inherit; }
   .edit-form .btn-row { margin-top: 18px; }
   .focus-select { width:100%; padding:12px; font-size:1rem; border-radius:10px; border:1px solid var(--line, #ddd); background:var(--card, #fff); color:inherit; }
+  .verb-check { display:block; margin-top:10px; font-size:.92rem; }
+  .verb-field { display:block; margin-top:12px; font-size:.85rem; }
+  .verb-field input { margin-top:4px; }
+  .verb-line { margin:4px 0; }
   .done-pct { font-size:1.6rem; font-weight:700; margin:6px 0 2px; }
 </style>
 </head>
@@ -103,8 +107,6 @@
     <p class="desc" id="setupDesc"></p>
 
     <div class="stat-grid">
-      <div class="stat-box"><div class="stat-num" id="statLerntag"></div><div class="stat-label">Lerntag</div></div>
-      <div class="stat-box"><div class="stat-num" id="statDue"></div><div class="stat-label">heute fällig</div></div>
       <div class="stat-box"><div class="stat-num" id="statMastered"></div><div class="stat-label">sicher gekonnt</div></div>
       <div class="stat-box"><div class="stat-num" id="statLektionen"></div><div class="stat-label">Lektionen frei</div></div>
     </div>
@@ -121,6 +123,7 @@
 
     <div class="tools-title">Gezielt üben</div>
     <select id="focusSelect" class="focus-select"></select>
+    <label class="verb-check"><input type="checkbox" id="verbOnly"> Verben-Training: Stammformen abfragen (nur Verben der Auswahl)</label>
     <button class="btn-outline" id="focusBtn" style="margin-top:10px" onclick="startFocus()">🎯 Auswahl üben</button>
     <div class="sync-note" id="focusNote">Übt genau diese Wörter (nur freigeschaltete Lektionen). „Fehler“ = Wörter, die zuletzt falsch beantwortet wurden. Der Lernstand wird dabei ganz normal mitgeführt.</div>
 
@@ -146,6 +149,20 @@
       <div class="qlabel" id="qlabel"></div>
       <div class="qmeta" id="qmeta"></div>
       <div class="question" id="questionText"></div>
+
+      <div id="verbBox" class="hidden">
+        <label class="verb-field"><span id="vMeaningLabel">Bedeutung(en)</span>
+          <input type="text" id="vMeaning" placeholder="alle Bedeutungen, durch Komma getrennt" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Präsens (ich-Form)
+          <input type="text" id="vPraes" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Perfekt (ich-Form)
+          <input type="text" id="vPerf" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Supinum / PPP (kein Supinum: „–“)
+          <input type="text" id="vSup" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <button class="btn-main" style="margin-top:20px" onclick="checkVerb()">Prüfen</button>
+        <button class="btn-outline" style="margin-top:10px" onclick="checkVerb(true)">Weiß ich nicht</button>
+        <div class="hint">Makrons sind egal. Bei Verben ohne Supinum oder bei Deponentien „–“ eintragen.</div>
+      </div>
 
       <div id="answeringBox">
         <input type="text" id="answerInput" placeholder="Antwort eintippen..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
@@ -211,6 +228,7 @@ let unlockedLektionen = 0;
 let totalLektionen = 0;
 let SESSION_MODE = 'due'; // 'due' | 'extra' | 'focus' | 'wrong'
 let LAST_SESSION_IDS = [];
+let SESSION_VERB = false;
 let SESSION_ANSWERS = 0, SESSION_FIRST_WRONG = 0;
 let totalLerntage = 1;
 let manualUnlock = 0;
@@ -417,14 +435,42 @@ function renderFocusOptions() {
   sel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t} (${focusWordIds(v).length})</option>`).join('');
   if (opts.some(o => o[0] === prev)) sel.value = prev;
 }
+// ---------------------------------------------------------------------------
+// Verben-Training (Stammformen). Die Formen werden aus dem Feld "begriff" gelesen.
+// ---------------------------------------------------------------------------
+const VERB_DASH = /^[-–—]$/;
+function parseVerb(w) {
+  const raw = w.begriff.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  const parts = raw.split(',').map(x => x.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const inf = parts[0];
+  if (/\s/.test(inf)) return null;
+  const plain = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const isActive = /(re|se)$/.test(plain(inf)) && /(o|sum)$/.test(plain(parts[1]));
+  const isDep = /i$/.test(plain(inf)) && !/re$/.test(plain(inf)) && /or$/.test(plain(parts[1]));
+  if (!isActive && !isDep) return null;
+  let perf = parts[2] || '', sup = parts[3] || '';
+  if (isDep) { sup = '–'; if (!perf) return null; }
+  else if (parts.length === 2) {
+    // Kurzschreibweise a-/i-Konjugation: parāre, parō -> parāvī, parātum
+    const m = inf.match(/^(.*[āī])re$/);
+    if (!m) return null;
+    perf = m[1] + 'vī'; sup = m[1] + 'tum';
+  } else if (parts.length === 3) sup = '–';
+  if (VERB_DASH.test(sup)) sup = '–';
+  return { inf, praes: parts[1], perf, sup };
+}
+function verbIds(ids) { return ids.filter(id => parseVerb(VOCAB[id])); }
 function startFocus() {
   const val = document.getElementById('focusSelect').value;
-  const ids = focusWordIds(val);
+  const verbMode = document.getElementById('verbOnly').checked;
+  const ids = verbMode ? verbIds(focusWordIds(val)) : focusWordIds(val);
   if (ids.length === 0) { document.getElementById('focusNote').textContent = 'In dieser Auswahl sind aktuell keine Wörter.'; return; }
-  startCustom(ids, 'focus');
+  startCustom(ids, 'focus', verbMode);
 }
-function startCustom(ids, modeName) {
+function startCustom(ids, modeName, verb) {
   SESSION_MODE = modeName;
+  SESSION_VERB = !!verb;
   LAST_SESSION_IDS = ids.slice();
   SESSION_QUEUE = sortByWeakness(ids);
   SESSION_DONE = 0; SESSION_WRONG = {}; SESSION_ANSWERS = 0; SESSION_FIRST_WRONG = 0;
@@ -434,11 +480,11 @@ function startCustom(ids, modeName) {
 }
 function repeatLast() {
   if (SESSION_MODE === 'due' || SESSION_MODE === 'extra') startSession(SESSION_MODE);
-  else startCustom(LAST_SESSION_IDS, SESSION_MODE);
+  else startCustom(LAST_SESSION_IDS, SESSION_MODE, SESSION_VERB);
 }
 function repeatWrong() {
   const ids = Object.keys(SESSION_WRONG).map(Number);
-  if (ids.length) startCustom(ids, 'wrong');
+  if (ids.length) startCustom(ids, 'wrong', SESSION_VERB);
 }
 function masteredCount() {
   const maxBox = (CONFIG.leitnerIntervals || [1,2,4,8,16]).length;
@@ -452,8 +498,6 @@ function renderDashboard(totalLerntage) {
     `${VOCAB.length} Wörter aus ${totalLektionen} Lektionen. Gut gekonnte Wörter kommen seltener dran, neue Lektionen werden nach und nach freigeschaltet.`;
 
   const due = dueWordIds().length;
-  document.getElementById('statLerntag').textContent = currentLerntag > totalLerntage ? `${currentLerntag}` : `${currentLerntag}/${totalLerntage}`;
-  document.getElementById('statDue').textContent = due;
   document.getElementById('statMastered').textContent = masteredCount();
   document.getElementById('statLektionen').textContent = `${unlockedLektionen}/${totalLektionen}`;
   document.getElementById('lektionFill').style.width = Math.round(unlockedLektionen/totalLektionen*100) + '%';
@@ -514,6 +558,7 @@ function exportVocab() {
 // ============================================================================
 function startSession(modeArg) {
   SESSION_MODE = modeArg || 'due';
+  SESSION_VERB = false;
   const pool = SESSION_MODE === 'extra' ? allUnlockedWordIdsByWeakness() : sortByWeakness(dueWordIds());
   SESSION_QUEUE = pool.slice(0, CONFIG.sessionSize || 25);
   SESSION_DONE = 0;
@@ -538,14 +583,23 @@ function renderCard() {
   document.getElementById('qmeta').textContent = `Lektion ${word.lektion}`;
   document.getElementById('questionText').textContent = word.begriff;
   document.getElementById('quizCard').className = 'quiz-card';
-  document.getElementById('answeringBox').classList.remove('hidden');
   document.getElementById('feedbackBox').classList.add('hidden');
   document.getElementById('editForm').classList.add('hidden');
   document.getElementById('editLink').classList.remove('hidden');
   const input = document.getElementById('answerInput');
   input.value = '';
   mode = 'answering';
-  setTimeout(() => input.focus(), 30);
+  const vinfo = SESSION_VERB ? parseVerb(word) : null;
+  document.getElementById('answeringBox').classList.toggle('hidden', !!vinfo);
+  document.getElementById('verbBox').classList.toggle('hidden', !vinfo);
+  if (vinfo) {
+    document.getElementById('qlabel').textContent = 'Verb · Stammformen';
+    document.getElementById('questionText').textContent = vinfo.inf;
+    ['vMeaning','vPraes','vPerf','vSup'].forEach(id => document.getElementById(id).value = '');
+    const n = new Set(alternatives(word.uebersetzung.replace(/(^|[;,])\s*perf\.?\s*/gi, '$1'))).size;
+    document.getElementById('vMeaningLabel').textContent = `Bedeutung(en) – ${n} ${n === 1 ? 'Bedeutung' : 'Bedeutungen'}`;
+    setTimeout(() => document.getElementById('vMeaning').focus(), 30);
+  } else setTimeout(() => input.focus(), 30);
 }
 
 function checkAnswer(skip) {
@@ -580,6 +634,37 @@ function checkAnswer(skip) {
   } else {
     caBox.classList.add('hidden');
   }
+}
+
+function checkVerb(skip) {
+  const word = VOCAB[currentId];
+  const v = parseVerb(word);
+  const val = id => document.getElementById(id).value.trim();
+  const given = { m: val('vMeaning'), p: val('vPraes'), f: val('vPerf'), s: val('vSup') };
+  if (skip !== true && !given.m && !given.p && !given.f && !given.s) return;
+  const expAlts = [...new Set(alternatives(word.uebersetzung.replace(/(^|[;,])\s*perf\.?\s*/gi, '$1')))];
+  const gotAlts = new Set(alternatives(given.m));
+  const okM = skip !== true && expAlts.every(a => gotAlts.has(a));
+  const form = (g, e) => skip !== true && normalize(g) === normalize(e);
+  const okP = form(given.p, v.praes), okF = form(given.f, v.perf);
+  const okS = skip !== true && (v.sup === '–' ? (VERB_DASH.test(given.s) || /^kein/i.test(given.s)) : normalize(given.s) === normalize(v.sup));
+  const isCorrect = okM && okP && okF && okS;
+  lastCorrect = isCorrect;
+  mode = 'feedback';
+  SESSION_ANSWERS++;
+  if (!isCorrect) { if (!SESSION_WRONG[word.id]) SESSION_FIRST_WRONG++; SESSION_WRONG[word.id] = (SESSION_WRONG[word.id] || 0) + 1; }
+
+  document.getElementById('quizCard').className = 'quiz-card ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('verbBox').classList.add('hidden');
+  document.getElementById('feedbackBox').classList.remove('hidden');
+  const fb = document.getElementById('feedbackMsg');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.textContent = isCorrect ? '✓ Richtig!' : (skip === true ? 'Lösung' : '✗ Nochmal üben');
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const line = (ok, label, exp, g) => `<div class="verb-line">${ok ? '✓' : '✗'} ${label}: <b>${esc(exp)}</b>${!ok && g ? ` <span style="opacity:.7">(deine Antwort: ${esc(g)})</span>` : ''}</div>`;
+  const caBox = document.getElementById('correctAnswerBox');
+  caBox.classList.remove('hidden');
+  caBox.innerHTML = line(okM, 'Bedeutung', word.uebersetzung, given.m) + line(okP, 'Präsens', v.praes, given.p) + line(okF, 'Perfekt', v.perf, given.f) + line(okS, 'Supinum', v.sup, given.s);
 }
 
 function nextWord() {
@@ -630,15 +715,16 @@ function toggleEdit() {
     document.getElementById('editUebersetzung').value = word.uebersetzung;
     document.getElementById('editLektion').value = word.lektion;
     document.getElementById('editSyncNote').textContent = '';
-    editPrevAnsweringVisible = !document.getElementById('answeringBox').classList.contains('hidden');
+    editPrevAnsweringVisible = !document.getElementById('answeringBox').classList.contains('hidden') ? 'answeringBox' : (!document.getElementById('verbBox').classList.contains('hidden') ? 'verbBox' : 'feedbackBox');
     document.getElementById('answeringBox').classList.add('hidden');
+    document.getElementById('verbBox').classList.add('hidden');
     document.getElementById('feedbackBox').classList.add('hidden');
     form.classList.remove('hidden');
     document.getElementById('editLink').classList.add('hidden');
   } else {
     form.classList.add('hidden');
     document.getElementById('editLink').classList.remove('hidden');
-    document.getElementById(editPrevAnsweringVisible ? 'answeringBox' : 'feedbackBox').classList.remove('hidden');
+    document.getElementById(editPrevAnsweringVisible).classList.remove('hidden');
   }
 }
 
@@ -667,8 +753,13 @@ function saveWordEdit() {
 document.getElementById('answerInput')?.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { if (mode === 'answering') checkAnswer(); else nextWord(); }
 });
+['vMeaning','vPraes','vPerf','vSup'].forEach((id, i, arr) => document.getElementById(id).addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  if (i < arr.length - 1) document.getElementById(arr[i+1]).focus(); else checkVerb();
+}));
 document.addEventListener('keydown', function(e) {
-  if (e.target && e.target.id === 'answerInput') return;
+  if (e.target && (e.target.id === 'answerInput' || /^v(Meaning|Praes|Perf|Sup)$/.test(e.target.id))) return;
   if (e.key === 'Enter' && mode === 'feedback') nextWord();
 });
 
