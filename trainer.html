@@ -80,6 +80,8 @@
   .edit-form input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
     font-size: 15px; text-align: left; background: #fff; color: var(--ink); font-family: inherit; }
   .edit-form .btn-row { margin-top: 18px; }
+  .focus-select { width:100%; padding:12px; font-size:1rem; border-radius:10px; border:1px solid var(--line, #ddd); background:var(--card, #fff); color:inherit; }
+  .done-pct { font-size:1.6rem; font-weight:700; margin:6px 0 2px; }
 </style>
 </head>
 <body>
@@ -117,6 +119,11 @@
     <button class="btn-outline" id="weiterBtn" style="margin-top:10px" onclick="unlockNextLektion()">→ Nächste Lektion freischalten</button>
     <div class="sync-note" id="weiterNote">Schaltet die nächste Lektion schon vorab frei, unabhängig vom Kalender. Noch nicht gekonnte Wörter bleiben trotzdem Teil der täglichen Sitzungen, bis sie sicher sitzen.</div>
 
+    <div class="tools-title">Gezielt üben</div>
+    <select id="focusSelect" class="focus-select"></select>
+    <button class="btn-outline" id="focusBtn" style="margin-top:10px" onclick="startFocus()">🎯 Auswahl üben</button>
+    <div class="sync-note" id="focusNote">Übt genau diese Wörter (nur freigeschaltete Lektionen). „Fehler“ = Wörter, die zuletzt falsch beantwortet wurden. Der Lernstand wird dabei ganz normal mitgeführt.</div>
+
     <div class="tools-title">Fortschritt &amp; Vokabeln</div>
     <div class="btn-row">
       <button class="btn-small" onclick="exportProgress()">⬇ Fortschritt sichern</button>
@@ -143,6 +150,7 @@
       <div id="answeringBox">
         <input type="text" id="answerInput" placeholder="Antwort eintippen..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
         <button class="btn-main" style="margin-top:20px" onclick="checkAnswer()">Prüfen</button>
+        <button class="btn-outline" style="margin-top:10px" onclick="checkAnswer(true)">Weiß ich nicht</button>
         <div class="hint">Groß-/Kleinschreibung ist egal. Mehrere richtige Antworten sind möglich.</div>
       </div>
 
@@ -176,6 +184,8 @@
     <div class="stats" id="doneStats"></div>
     <div id="hardWordsBox"></div>
     <div class="btn-row">
+      <button class="btn-outline" id="againBtn" onclick="repeatLast()">↻ Nochmal (gleiche Auswahl)</button>
+      <button class="btn-outline" id="wrongBtn" onclick="repeatWrong()">✗ Nur die Fehler üben</button>
       <button class="btn-main" onclick="location.reload()">↺ Zurück zur Übersicht</button>
     </div>
     <div class="sync-note ok" id="syncNoteDone"></div>
@@ -199,7 +209,9 @@ let lastCorrect = null;
 let currentLerntag = 1;
 let unlockedLektionen = 0;
 let totalLektionen = 0;
-let SESSION_MODE = 'due'; // 'due' | 'extra'
+let SESSION_MODE = 'due'; // 'due' | 'extra' | 'focus' | 'wrong'
+let LAST_SESSION_IDS = [];
+let SESSION_ANSWERS = 0, SESSION_FIRST_WRONG = 0;
 let totalLerntage = 1;
 let manualUnlock = 0;
 
@@ -278,8 +290,8 @@ function parseCSV(text) {
 }
 function csvField(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
 function serializeCSV(vocab) {
-  const lines = ['begriff;uebersetzung;lektion'];
-  vocab.forEach(w => lines.push(csvField(w.begriff) + ';' + csvField(w.uebersetzung) + ';' + w.lektion));
+  const lines = ['begriff;uebersetzung;lektion;notiz'];
+  vocab.forEach(w => lines.push(csvField(w.begriff) + ';' + csvField(w.uebersetzung) + ';' + w.lektion + ';' + (w.notiz || '')));
   return lines.join('\n');
 }
 
@@ -309,6 +321,7 @@ async function init() {
     const iBegriff = header.indexOf('begriff');
     const iUeb = header.indexOf('uebersetzung');
     const iLekt = header.indexOf('lektion');
+    const iNotiz = header.indexOf('notiz');
     if (iBegriff < 0 || iUeb < 0 || iLekt < 0) {
       throw new Error('Die CSV braucht die Spalten "begriff", "uebersetzung" und "lektion".');
     }
@@ -316,7 +329,8 @@ async function init() {
       id: idx,
       begriff: r[iBegriff].trim(),
       uebersetzung: r[iUeb].trim(),
-      lektion: parseInt(r[iLekt], 10) || 1
+      lektion: parseInt(r[iLekt], 10) || 1,
+      notiz: iNotiz >= 0 && r[iNotiz] ? r[iNotiz].trim() : ''
     }));
     if (VOCAB.length === 0) throw new Error('Keine Vokabeln in der CSV gefunden.');
 
@@ -333,13 +347,14 @@ async function init() {
     const ranges = CONFIG.vacationRanges || [];
     const totalLerntageVal = Math.max(1, countStudyDays(start, end, ranges));
     totalLerntage = totalLerntageVal;
+    // Der Lerntag zählt auch nach dem Enddatum weiter, damit die Wiederholungs-Intervalle (Leitner)
+    // weiterlaufen. Nur die Freischaltung der Lektionen ist auf den Zeitraum begrenzt.
     let effectiveToday = today;
     if (today < start) effectiveToday = start;
-    if (today > end) effectiveToday = end;
     currentLerntag = Math.max(1, countStudyDays(start, effectiveToday, ranges));
 
     const lessonsPerDay = Math.ceil(totalLektionen / totalLerntageVal);
-    const calendarUnlocked = Math.min(totalLektionen, lessonsPerDay * currentLerntag);
+    const calendarUnlocked = Math.min(totalLektionen, lessonsPerDay * Math.min(currentLerntag, totalLerntageVal));
     manualUnlock = lsGet(manualUnlockKey()) || 0;
     unlockedLektionen = Math.min(totalLektionen, Math.max(calendarUnlocked, manualUnlock));
 
@@ -383,6 +398,48 @@ function unlockNextLektion() {
   unlockedLektionen = Math.max(unlockedLektionen, manualUnlock);
   renderDashboard(totalLerntage);
 }
+// Gezielt üben: Auswahl (Lektion / Wiederholungswörter / Fehler / alle)
+function focusWordIds(val) {
+  const unlocked = VOCAB.filter(w => w.lektion <= unlockedLektionen);
+  let list;
+  if (val === 'all') list = unlocked;
+  else if (val === 'wdh') list = unlocked.filter(w => /Wdh/.test(w.notiz || ''));
+  else if (val === 'miss') list = unlocked.filter(w => PROGRESS[w.id] && PROGRESS[w.id].box === 1);
+  else list = unlocked.filter(w => String(w.lektion) === val.replace('l:', ''));
+  return list.map(w => w.id);
+}
+function renderFocusOptions() {
+  const sel = document.getElementById('focusSelect');
+  const prev = sel.value;
+  const opts = [['all', 'Alle freigeschalteten Wörter'], ['miss', 'Fehler (zuletzt falsch)'], ['wdh', 'Wiederholungswörter (Seite 70–73)']];
+  const lekts = [...new Set(VOCAB.filter(w => w.lektion <= unlockedLektionen).map(w => w.lektion))].sort((a,b) => b - a);
+  lekts.forEach(l => opts.push(['l:' + l, 'Lektion ' + l]));
+  sel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t} (${focusWordIds(v).length})</option>`).join('');
+  if (opts.some(o => o[0] === prev)) sel.value = prev;
+}
+function startFocus() {
+  const val = document.getElementById('focusSelect').value;
+  const ids = focusWordIds(val);
+  if (ids.length === 0) { document.getElementById('focusNote').textContent = 'In dieser Auswahl sind aktuell keine Wörter.'; return; }
+  startCustom(ids, 'focus');
+}
+function startCustom(ids, modeName) {
+  SESSION_MODE = modeName;
+  LAST_SESSION_IDS = ids.slice();
+  SESSION_QUEUE = sortByWeakness(ids);
+  SESSION_DONE = 0; SESSION_WRONG = {}; SESSION_ANSWERS = 0; SESSION_FIRST_WRONG = 0;
+  mode = 'answering';
+  show('quiz');
+  renderCard();
+}
+function repeatLast() {
+  if (SESSION_MODE === 'due' || SESSION_MODE === 'extra') startSession(SESSION_MODE);
+  else startCustom(LAST_SESSION_IDS, SESSION_MODE);
+}
+function repeatWrong() {
+  const ids = Object.keys(SESSION_WRONG).map(Number);
+  if (ids.length) startCustom(ids, 'wrong');
+}
 function masteredCount() {
   const maxBox = (CONFIG.leitnerIntervals || [1,2,4,8,16]).length;
   return VOCAB.filter(w => w.lektion <= unlockedLektionen && PROGRESS[w.id] && PROGRESS[w.id].box >= maxBox).length;
@@ -395,13 +452,14 @@ function renderDashboard(totalLerntage) {
     `${VOCAB.length} Wörter aus ${totalLektionen} Lektionen. Gut gekonnte Wörter kommen seltener dran, neue Lektionen werden nach und nach freigeschaltet.`;
 
   const due = dueWordIds().length;
-  document.getElementById('statLerntag').textContent = `${currentLerntag}/${totalLerntage}`;
+  document.getElementById('statLerntag').textContent = currentLerntag > totalLerntage ? `${currentLerntag}` : `${currentLerntag}/${totalLerntage}`;
   document.getElementById('statDue').textContent = due;
   document.getElementById('statMastered').textContent = masteredCount();
   document.getElementById('statLektionen').textContent = `${unlockedLektionen}/${totalLektionen}`;
   document.getElementById('lektionFill').style.width = Math.round(unlockedLektionen/totalLektionen*100) + '%';
   document.getElementById('syncNote').textContent = '✓ Fortschritt wird automatisch in diesem Browser gespeichert.';
 
+  renderFocusOptions();
   document.getElementById('startBtn').disabled = due === 0;
   document.getElementById('startBtn').textContent = due === 0
     ? 'Heute schon alles erledigt ✓'
@@ -460,6 +518,7 @@ function startSession(modeArg) {
   SESSION_QUEUE = pool.slice(0, CONFIG.sessionSize || 25);
   SESSION_DONE = 0;
   SESSION_WRONG = {};
+  SESSION_ANSWERS = 0; SESSION_FIRST_WRONG = 0;
   mode = 'answering';
   show('quiz');
   renderCard();
@@ -467,7 +526,7 @@ function startSession(modeArg) {
 
 function renderCard() {
   const total = SESSION_DONE + SESSION_QUEUE.length;
-  const modeLabel = SESSION_MODE === 'extra' ? ' · Extra-Runde' : '';
+  const modeLabel = ({extra:' · Extra-Runde', focus:' · Gezielt', wrong:' · Fehler'})[SESSION_MODE] || '';
   document.getElementById('doneCount').textContent = `${SESSION_DONE} / ${total} in dieser Sitzung` + modeLabel;
   document.getElementById('remainCount').textContent = `${SESSION_QUEUE.length} verbleibend`;
   document.getElementById('progressFill').style.width = total ? Math.round(SESSION_DONE/total*100) + '%' : '0%';
@@ -489,12 +548,12 @@ function renderCard() {
   setTimeout(() => input.focus(), 30);
 }
 
-function checkAnswer() {
+function checkAnswer(skip) {
   const input = document.getElementById('answerInput');
-  if (input.value.trim() === '') return;
+  if (skip !== true && input.value.trim() === '') return;
   const word = VOCAB[currentId];
   const accepted = alternatives(word.uebersetzung);
-  const isCorrect = accepted.includes(normalize(input.value));
+  const isCorrect = skip === true ? false : accepted.includes(normalize(input.value));
   lastCorrect = isCorrect;
   mode = 'feedback';
 
@@ -505,14 +564,15 @@ function checkAnswer() {
   PROGRESS[word.id] = p;
   lsSet(progressKey(), PROGRESS); // nach jeder Antwort sichern - kein Datenverlust bei Tab schließen
 
-  if (!isCorrect) SESSION_WRONG[word.id] = (SESSION_WRONG[word.id] || 0) + 1;
+  SESSION_ANSWERS++;
+  if (!isCorrect) { if (!SESSION_WRONG[word.id]) SESSION_FIRST_WRONG++; SESSION_WRONG[word.id] = (SESSION_WRONG[word.id] || 0) + 1; }
 
   document.getElementById('quizCard').className = 'quiz-card ' + (isCorrect ? 'correct' : 'wrong');
   document.getElementById('answeringBox').classList.add('hidden');
   document.getElementById('feedbackBox').classList.remove('hidden');
   const fb = document.getElementById('feedbackMsg');
   fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
-  fb.textContent = isCorrect ? '✓ Richtig!' : '✗ Nochmal üben';
+  fb.textContent = isCorrect ? '✓ Richtig!' : (skip === true ? 'Lösung' : '✗ Nochmal üben');
   const caBox = document.getElementById('correctAnswerBox');
   if (!isCorrect) {
     caBox.classList.remove('hidden');
@@ -536,7 +596,10 @@ function nextWord() {
 function finishSession() {
   show('done');
   const modeText = SESSION_MODE === 'extra' ? ' Extra-' : ' ';
-  document.getElementById('doneStats').textContent = `${SESSION_DONE} Wörter in dieser${modeText}Sitzung geschafft.`;
+  const uniq = SESSION_DONE;
+  const pct = uniq ? Math.round((uniq - Object.keys(SESSION_WRONG).length) / uniq * 100) : 0;
+  document.getElementById('doneStats').innerHTML = `<div class="done-pct">${pct} % auf Anhieb richtig</div>${SESSION_DONE} Wörter in dieser${modeText}Sitzung geschafft.`;
+  document.getElementById('wrongBtn').classList.toggle('hidden', Object.keys(SESSION_WRONG).length === 0);
   const hard = Object.entries(SESSION_WRONG)
     .map(([id, count]) => ({ word: VOCAB[Number(id)], count }))
     .sort((a,b) => b.count - a.count);
