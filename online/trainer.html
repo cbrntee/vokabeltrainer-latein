@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vokabeltraining</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* outheis-Farben (src/outheis/webui/assets/colors.md) */
+    --paper: #F4F3F3;          /* Fog: Seitenhintergrund */
+    --card: #FFFFFF;           /* White: Karten */
+    --ink: #1A1A1A;            /* Charcoal: Text und Rahmen */
+    --text: #4A4646;           /* Slate: Fließtext */
+    --muted: #7A7676;          /* Stone: Hinweise */
+    --line: #B8B4B4;           /* Silver: Rahmen und Trennlinien */
+    --mist: #E8E6E6;           /* Mist: Hover-Flächen, Fortschrittsspur */
+    --accent: #460A46;         /* Dark Amethyst: Primärbuttons (btn-primary) */
+    --accent-dark: #460A46;
+    --accent-hover: #460A46;
+    --info: #C490D1;           /* Wisteria: Fortschritt, Info */
+    --green: #218380; --green-bg: #E6F3F3;   /* Teal */
+    --red: #FF2E00;  --red-bg: #FFF0EE;      /* Scarlet Fire */
+    --gold: #FFB400; --gold-bg: #FFF8E6;     /* Amber Flame */
+    --info-bg: #F5EDF8;        /* Wisteria-Tönung: Hinweisflächen */
+    --warn-bg: #FFF8E6;        /* Amber-Tönung */
+  }
+  @media (prefers-color-scheme: no-preference) {
+    :root {
+      --paper: #242424; --card: #1A1A1A; --ink: #F0F0F0; --text: #A0A0A0; --muted: #707070;
+      --line: rgba(255, 255, 255, 0.12); --mist: #2A2A2A; --info: #C490D1;
+      --green-bg: #14532D; --red-bg: #450A0A; --gold-bg: #422006; --info-bg: #1E3A5F; --warn-bg: #422006;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--paper);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px; color: var(--ink);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .bg-lines { display: none; }
+  .wrap { position: relative; width: 100%; max-width: 560px; z-index: 1; }
+  .card { background: var(--card); border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid var(--line); padding: 32px; }
+  h1 { font-size: 26px; color: var(--ink); margin: 8px 0 8px; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
+  p.desc { color: var(--text); line-height: 1.5; margin-bottom: 20px; }
+  button { font-family: inherit; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation; }
+  .btn-main { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 12px;
+    padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .btn-main:active { background: var(--accent-dark); }
+  .btn-main:disabled { opacity: 0.5; cursor: default; }
+  .btn-outline:hover { background: var(--mist); }
+  .btn-outline { width: 100%; background: var(--card); color: var(--accent); border: 2px solid var(--accent);
+    border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-small { flex: 1; background: var(--card); color: var(--accent); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-row { display: flex; gap: 8px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--ink); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  .lektion-bar { width: 100%; height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 6px 0 20px; }
+  .lektion-fill { height: 100%; background: var(--info); transition: width 0.4s; }
+  .sync-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 14px; }
+  .sync-note.err { color: var(--red); }
+  .sync-note.ok { color: var(--green); }
+  .sync-note.warn { color: var(--gold); }
+  .hint.ok { color: var(--green); }
+  .hint.warn { color: var(--gold); }
+  .btn-warn { width: 100%; background: var(--card); color: var(--ink); border: 2px solid var(--gold); border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-warn:hover { background: var(--mist); }
+  .tools-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 22px 0 8px; text-align: center; }
+  .progress-row { display: flex; justify-content: space-between; font-size: 12px; font-family: "IBM Plex Mono", monospace; color: var(--muted); margin-bottom: 8px; padding: 0 4px; }
+  .progress-bar { width: 100%; height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 24px; }
+  .progress-fill { height: 100%; background: var(--info); transition: width 0.4s; }
+  .quiz-card { position: relative; border: 2px solid var(--line); border-radius: 18px; background: var(--card); padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .quiz-card.correct { border-color: var(--green); }
+  .quiz-card.wrong { border-color: var(--red); }
+  .qlabel { position: absolute; top: -11px; left: 24px; background: var(--card); padding: 2px 8px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-family: monospace;
+    border: 1px solid var(--line); border-radius: 4px; }
+  .qmeta { position: absolute; top: -11px; right: 24px; background: var(--card); padding: 2px 8px;
+    font-size: 10px; color: var(--muted); font-family: monospace; border: 1px solid var(--line); border-radius: 4px; }
+  .question { font-size: 26px; font-weight: bold; color: var(--ink); text-align: center; margin: 16px 0 28px; word-break: break-word; }
+  input[type=text], input[type=number] { width: 100%; border: none; border-bottom: 2px solid var(--line); outline: none;
+    font-size: 18px; padding: 8px; text-align: center; background: transparent; color: var(--ink); font-family: inherit; }
+  input[type=text]:focus, input[type=number]:focus { border-bottom-color: var(--accent); }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 10px; text-align: center; }
+  .feedback { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-weight: 600; }
+  .feedback.correct { background: var(--card); color: var(--green); border: 1px solid var(--green); }
+  .feedback.wrong { background: var(--card); color: var(--red); border: 1px solid var(--red); }
+  .correct-answer { text-align: center; color: var(--text); margin-bottom: 16px; }
+  .correct-answer b { color: var(--ink); }
+  .done-title { font-size: 24px; color: var(--ink); text-align: center; margin: 8px 0; }
+  .big-emoji { font-size: 40px; text-align: center; margin-bottom: 8px; }
+  .stats { color: var(--text); text-align: center; margin-bottom: 20px; }
+  .hardlist { text-align: left; background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--line); max-height: 220px; overflow-y: auto; }
+  .hardlist-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .hardlist-item { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); padding: 2px 0; }
+  .hardlist-item .cnt { color: var(--red); font-family: monospace; }
+  .hidden { display: none !important; }
+  .spinner { text-align: center; color: var(--muted); padding: 40px 0; }
+  .errbox { background: var(--card); color: var(--red); border: 1px solid var(--red); border-radius: 12px; padding: 16px; font-size: 14px; line-height: 1.5; }
+  .edit-link { text-align: center; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; margin-top: -14px; margin-bottom: 18px; }
+  .edit-form label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+  .edit-form input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+    font-size: 15px; text-align: left; background: var(--card); color: var(--ink); font-family: inherit; }
+  .edit-form .btn-row { margin-top: 18px; }
+  .focus-select { width:100%; padding:12px; font-size:1rem; border-radius:10px; border:1px solid var(--line, #ddd); background:var(--card, #fff); color:inherit; }
+  .verb-check { display:block; margin-top:10px; font-size:.92rem; }
+  .verb-field { display:block; margin-top:12px; font-size:.85rem; }
+  .verb-field input { margin-top:4px; }
+  .verb-line { margin:4px 0; }
+  .done-pct { font-size:1.6rem; font-weight:700; margin:6px 0 2px; color: var(--green); }
+  .cloud { position: relative; height: 320px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--card); margin: 12px 0; }
+  .cw { position: absolute; cursor: pointer; user-select: none; padding: 2px 6px; border-radius: 6px; font-family: monospace; color: var(--text);  white-space: nowrap; }
+  .cw:hover { opacity: 1; background: var(--mist); }
+  .cw.picked:hover { background: var(--accent); }
+  .cw.picked { background: var(--accent); color: #fff; opacity: 1; }
+  .picked-bar { font-family: "IBM Plex Mono", monospace; font-size: 14px; color: var(--ink); min-height: 40px; line-height: 1.6; word-break: break-word; }
+  .picked-count { font-size: 12px; color: var(--muted); text-align: right; font-family: "IBM Plex Mono", monospace; }
+  .words-shown { font-family: "IBM Plex Mono", monospace; font-size: 20px; color: var(--ink); background: var(--card); border: 1px solid var(--info); border-radius: 12px; padding: 16px; margin: 12px 0; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="bg-lines"></div>
+<div class="wrap">
+
+  <div id="loading" class="card"><div class="spinner">Wird geladen …</div></div>
+
+  <div id="errorScreen" class="card hidden">
+    <div class="eyebrow">Fehler</div>
+    <h1>Etwas ist schiefgelaufen</h1>
+    <div class="errbox" id="errText"></div>
+  </div>
+
+  <!-- ANMELDUNG: Zugangsphrase + persönliche Wörter -->
+  <div id="gate" class="card hidden">
+    <div class="eyebrow">Anmeldung</div>
+    <h1 id="gateTitle">Vokabeltraining</h1>
+    <p class="desc">Gib deine 8 persönlichen Wörter und die 6 Zugangswörter ein. Dein Fortschritt wird verschlüsselt auf GitHub gespeichert und ist von jedem Gerät aus abrufbar.</p>
+    <label class="verb-field">Deine 8 persönlichen Wörter
+      <input type="text" id="gPersonal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+    <label class="verb-field">Zugangsphrase (6 Wörter)
+      <input type="text" id="gAccess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+    <button class="btn-main" id="gOpen" style="margin-top:20px" onclick="openGate()">Öffnen</button>
+    <button class="btn-outline" id="gNew" style="margin-top:10px" onclick="startNewAccount()">Neues Konto anlegen (8 Wörter selbst wählen)</button>
+    <div class="sync-note err" id="gateNote"></div>
+  </div>
+
+  <!-- NEUES KONTO: 8 persönliche Wörter aus einer Wortwolke wählen -->
+  <div id="wordGame" class="card hidden">
+    <div class="eyebrow">Neues Konto · Schritt 1 von 2</div>
+    <h1>Wähle 8 Wörter</h1>
+    <p class="desc">Klicke in der Wolke 8 Wörter an, in der Reihenfolge, in der du sie anklickst. Diese Wörter sind dein persönlicher Schlüssel. Mit „Neu mischen“ wird die Wolke durch andere Wörter ersetzt; deine bisherige Auswahl bleibt erhalten.</p>
+    <div class="cloud" id="cloud"></div>
+    <div class="picked-count" id="pickedCount"></div>
+    <div class="picked-bar" id="pickedBar"></div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn-outline" onclick="show('gate')">Abbrechen</button>
+      <button class="btn-outline" onclick="redrawCloud()">↻ Neu mischen</button>
+    </div>
+    <button class="btn-main" id="wgNext" style="margin-top:10px" disabled onclick="goConfirm()">Weiter →</button>
+  </div>
+
+  <!-- NEUES KONTO: Wörter notieren und durch Abtippen bestätigen -->
+  <div id="wordConfirm" class="card hidden">
+    <div class="eyebrow">Neues Konto · Schritt 2 von 2</div>
+    <h1>Deine 8 Wörter</h1>
+    <p class="desc">Schreibe sie jetzt in dieser Reihenfolge auf und bewahre sie sicher auf. Ohne sie gibt es keinen Zugriff auf deinen Stand, und die App kann sie nicht wiederherstellen. Zur Bestätigung tippe sie unten ein.</p>
+    <div class="words-shown" id="wordsShown"></div>
+    <label class="verb-field">Zur Bestätigung eintippen (Leerzeichen zwischen den Wörtern)
+      <input type="text" id="wConfirm" oninput="updateConfirm()" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+    <div class="hint" id="wConfirmHint"></div>
+    <button class="btn-main" id="wConfirmBtn" style="margin-top:16px" disabled onclick="confirmNewAccount()">Konto anlegen</button>
+    <button class="btn-outline" style="margin-top:10px" onclick="show('wordGame')">Zurück zur Auswahl</button>
+    <div class="sync-note err" id="wConfirmNote"></div>
+  </div>
+
+  <!-- DASHBOARD / SETUP -->
+  <div id="setup" class="card hidden">
+    <div class="eyebrow" id="setupEyebrow"></div>
+    <h1 id="setupTitle"></h1>
+    <p class="desc" id="setupDesc"></p>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="statMastered"></div><div class="stat-label">sicher gekonnt</div></div>
+      <div class="stat-box"><div class="stat-num" id="statLektionen"></div><div class="stat-label">Lektionen frei</div></div>
+    </div>
+    <div class="lektion-bar"><div class="lektion-fill" id="lektionFill" style="width:0%"></div></div>
+
+    <button class="btn-main" id="startBtn" onclick="startSession(false)">✨ Training starten</button>
+    <div class="sync-note" id="syncNote"></div>
+
+    <button class="btn-outline" id="extraBtn" style="margin-top:10px" onclick="startSession('extra')">📚 Extra-Runde üben (freiwillig)</button>
+    <div class="sync-note" id="extraNote">Zusätzliches Üben, auch wenn das Tagessoll schon erfüllt ist – zieht aus allen bisher freigeschalteten Wörtern.</div>
+
+    <button class="btn-outline" id="weiterBtn" style="margin-top:10px" onclick="unlockNextLektion()">→ Nächste Lektion freischalten</button>
+    <div class="sync-note" id="weiterNote">Schaltet die nächste Lektion schon vorab frei, unabhängig vom Kalender. Noch nicht gekonnte Wörter bleiben trotzdem Teil der täglichen Sitzungen, bis sie sicher sitzen.</div>
+
+    <div class="tools-title">Gezielt üben</div>
+    <select id="focusSelect" class="focus-select"></select>
+    <label class="verb-check"><input type="checkbox" id="verbOnly"> Verben-Training: Stammformen abfragen (nur Verben der Auswahl)</label>
+    <button class="btn-outline" id="focusBtn" style="margin-top:10px" onclick="startFocus()">🎯 Auswahl üben</button>
+    <div class="sync-note" id="focusNote">Übt genau diese Wörter (nur freigeschaltete Lektionen). „Fehler“ = Wörter, die zuletzt falsch beantwortet wurden. Der Lernstand wird dabei ganz normal mitgeführt.</div>
+
+    <div class="tools-title">Fortschritt &amp; Vokabeln</div>
+    <div class="btn-row">
+      <button class="btn-small" onclick="VTRemote.saveNow()">💾 Jetzt speichern</button>
+      <button class="btn-small" onclick="exportProgress()">⬇ Fortschritt sichern</button>
+      <button class="btn-small" onclick="document.getElementById('importFile').click()">⬆ Fortschritt laden</button>
+      <button class="btn-small" onclick="exportVocab()">⬇ Vokabelliste (CSV)</button>
+    </div>
+    <button class="btn-warn hidden" id="migrateBtn" style="margin-top:10px" onclick="adoptLegacy()">Lokalen Stand aus diesem Browser übernehmen (einmalig)</button>
+    <input type="file" id="importFile" accept="application/json" class="hidden" onchange="importProgress(event)" />
+    <div class="sync-note" id="toolsNote"></div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz" class="hidden">
+    <div class="progress-row">
+      <span id="doneCount">0 / 0 in dieser Sitzung</span>
+      <span id="remainCount"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="quiz-card" id="quizCard">
+      <div class="qlabel" id="qlabel"></div>
+      <div class="qmeta" id="qmeta"></div>
+      <div class="question" id="questionText"></div>
+
+      <div id="verbBox" class="hidden">
+        <label class="verb-field"><span id="vMeaningLabel">Bedeutung(en)</span>
+          <input type="text" id="vMeaning" placeholder="alle Bedeutungen, durch Komma getrennt" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Präsens (ich-Form)
+          <input type="text" id="vPraes" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Perfekt (ich-Form)
+          <input type="text" id="vPerf" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <label class="verb-field">Supinum / PPP (kein Supinum: „–“)
+          <input type="text" id="vSup" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" /></label>
+        <button class="btn-main" style="margin-top:20px" onclick="checkVerb()">Prüfen</button>
+        <button class="btn-outline" style="margin-top:10px" onclick="checkVerb(true)">Weiß ich nicht</button>
+        <div class="hint">Makrons sind egal. Bei Verben ohne Supinum oder bei Deponentien „–“ eintragen.</div>
+      </div>
+
+      <div id="answeringBox">
+        <input type="text" id="answerInput" placeholder="Antwort eintippen..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+        <button class="btn-main" style="margin-top:20px" onclick="checkAnswer()">Prüfen</button>
+        <button class="btn-outline" style="margin-top:10px" onclick="checkAnswer(true)">Weiß ich nicht</button>
+        <div class="hint">Groß-/Kleinschreibung ist egal. Mehrere richtige Antworten sind möglich.</div>
+      </div>
+
+      <div id="feedbackBox" class="hidden">
+        <div class="feedback" id="feedbackMsg"></div>
+        <div class="correct-answer hidden" id="correctAnswerBox"></div>
+        <button class="btn-main" onclick="nextWord()">Weiter →</button>
+      </div>
+
+      <div id="editForm" class="edit-form hidden">
+        <label id="editBegriffLabel">Begriff</label>
+        <input type="text" id="editBegriff" />
+        <label id="editUebLabel">Übersetzung</label>
+        <input type="text" id="editUebersetzung" />
+        <label>Lektion</label>
+        <input type="number" id="editLektion" min="1" />
+        <div class="btn-row">
+          <button class="btn-outline" onclick="toggleEdit()">Abbrechen</button>
+          <button class="btn-main" onclick="saveWordEdit()">Speichern</button>
+        </div>
+        <div class="sync-note" id="editSyncNote"></div>
+      </div>
+    </div>
+    <div class="edit-link" id="editLink" onclick="toggleEdit()">✎ Dieses Wort korrigieren</div>
+  </div>
+
+  <!-- DONE SCREEN -->
+  <div id="done" class="card hidden">
+    <div class="big-emoji">✨</div>
+    <div class="done-title">Sitzung beendet!</div>
+    <div class="stats" id="doneStats"></div>
+    <div id="hardWordsBox"></div>
+    <div class="btn-row">
+      <button class="btn-outline" id="againBtn" onclick="repeatLast()">↻ Nochmal (gleiche Auswahl)</button>
+      <button class="btn-outline" id="wrongBtn" onclick="repeatWrong()">✗ Nur die Fehler üben</button>
+      <button class="btn-main" onclick="backToDashboard()">↺ Zurück zur Übersicht</button>
+    </div>
+    <div class="sync-note ok" id="syncNoteDone"></div>
+  </div>
+
+</div>
+
+<script src="eff-words.js"></script>
+<script src="remote.js"></script>
+<script>
+// ============================================================================
+// State
+// ============================================================================
+let CONFIG = null;
+let VOCAB = [];              // [{id, begriff, uebersetzung, lektion}]
+let PROGRESS = {};           // { [id]: {box, lastSeen} }
+let OVERRIDES = {};          // { [id]: {begriff, uebersetzung, lektion} } - Korrekturen
+let SESSION_QUEUE = [];
+let SESSION_DONE = 0;
+let SESSION_WRONG = {};
+let currentId = null;
+let mode = 'answering';
+let lastCorrect = null;
+let currentLerntag = 1;
+let unlockedLektionen = 0;
+let totalLektionen = 0;
+let SESSION_MODE = 'due'; // 'due' | 'extra' | 'focus' | 'wrong'
+let LAST_SESSION_IDS = [];
+let SESSION_VERB = false;
+let SESSION_ANSWERS = 0, SESSION_FIRST_WRONG = 0;
+let totalLerntage = 1;
+let manualUnlock = 0;
+
+// ============================================================================
+// Utilities
+// ============================================================================
+function show(id) {
+  ['loading', 'errorScreen', 'gate', 'wordGame', 'wordConfirm', 'setup', 'quiz', 'done'].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+function fail(msg) {
+  document.getElementById('errText').innerHTML = msg;
+  show('errorScreen');
+}
+function normalize(str) {
+  return str.toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\/[-\wäöüßā-ȳ]+/gi, ' ')
+    .replace(/[āăâ]/g, 'a').replace(/[ēĕê]/g, 'e').replace(/[īĭî]/g, 'i')
+    .replace(/[ōŏô]/g, 'o').replace(/[ūŭû]/g, 'u')
+    .replace(/^(to|zu)\s+/, '')
+    .replace(/[.,!?"']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function alternatives(raw) { return raw.split(/[;,]/).map(normalize).filter(Boolean); }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function parseDate(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function isWeekend(d) { const day = d.getDay(); return day === 0 || day === 6; }
+function inVacation(d, ranges) { return ranges.some(([s,e]) => d >= parseDate(s) && d <= parseDate(e)); }
+function isStudyDay(d, ranges) { return !isWeekend(d) && !inVacation(d, ranges); }
+function countStudyDays(start, end, ranges) {
+  let count = 0, d = new Date(start);
+  while (d <= end) { if (isStudyDay(d, ranges)) count++; d.setDate(d.getDate() + 1); }
+  return count;
+}
+function downloadFile(filename, text, mime) {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================================
+// CSV parsing (Semikolon-getrennt, Felder in "..." mit "" als escaped quote)
+// ============================================================================
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i+1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ';') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && next === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function csvField(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
+function serializeCSV(vocab) {
+  const lines = ['begriff;uebersetzung;lektion;notiz'];
+  vocab.forEach(w => lines.push(csvField(w.begriff) + ';' + csvField(w.uebersetzung) + ';' + w.lektion + ';' + (w.notiz || '')));
+  return lines.join('\n');
+}
+
+// ============================================================================
+// Alter lokaler Speicher (localStorage) - wird NUR noch zur einmaligen Übernahme gelesen.
+// Gespeichert wird ausschließlich verschlüsselt über remote.js (GitHub-Daten-Repo).
+// ============================================================================
+function lsGet(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
+function progressKey() { return 'vt_progress::' + (CONFIG.csvFile || 'default'); }
+function legacyStateFromBrowser() {
+  const progress = lsGet(progressKey());
+  if (!progress || Object.keys(progress).length === 0) return null;
+  return { progress, manualUnlock: lsGet('vt_manual_unlock::' + (CONFIG.csvFile || 'default')) || 0,
+           overrides: lsGet('vt_vocab_overrides::' + (CONFIG.csvFile || 'default')) || {} };
+}
+// Persistenter Zustand für den Remote-Speicher
+function currentState() { return { progress: PROGRESS, manualUnlock, overrides: OVERRIDES }; }
+
+// ============================================================================
+// Init
+// ============================================================================
+async function init() {
+  try {
+    const cfgRes = await fetch('config.json');
+    if (!cfgRes.ok) throw new Error('config.json konnte nicht geladen werden.');
+    CONFIG = await cfgRes.json();
+
+    const csvRes = await fetch(CONFIG.csvFile);
+    if (!csvRes.ok) throw new Error(`${CONFIG.csvFile} konnte nicht geladen werden.`);
+    const csvText = await csvRes.text();
+    const rows = parseCSV(csvText);
+    const header = rows[0].map(h => h.trim().toLowerCase());
+    const iBegriff = header.indexOf('begriff');
+    const iUeb = header.indexOf('uebersetzung');
+    const iLekt = header.indexOf('lektion');
+    const iNotiz = header.indexOf('notiz');
+    if (iBegriff < 0 || iUeb < 0 || iLekt < 0) {
+      throw new Error('Die CSV braucht die Spalten "begriff", "uebersetzung" und "lektion".');
+    }
+    VOCAB = rows.slice(1).filter(r => r[iBegriff] && r[iBegriff].trim()).map((r, idx) => ({
+      id: idx,
+      begriff: r[iBegriff].trim(),
+      uebersetzung: r[iUeb].trim(),
+      lektion: parseInt(r[iLekt], 10) || 1,
+      notiz: iNotiz >= 0 && r[iNotiz] ? r[iNotiz].trim() : ''
+    }));
+    if (VOCAB.length === 0) throw new Error('Keine Vokabeln in der CSV gefunden.');
+
+    totalLektionen = Math.max(...VOCAB.map(w => w.lektion));
+
+    // Kalender berechnen (Lerntage ab Startdatum)
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = parseDate(CONFIG.startDate);
+    const end = parseDate(CONFIG.endDate);
+    const ranges = CONFIG.vacationRanges || [];
+    totalLerntage = Math.max(1, countStudyDays(start, end, ranges));
+    // Der Lerntag zählt auch nach dem Enddatum weiter, damit die Wiederholungs-Intervalle (Leitner)
+    // weiterlaufen. Nur die Freischaltung der Lektionen ist auf den Zeitraum begrenzt.
+    let effectiveToday = today;
+    if (today < start) effectiveToday = start;
+    currentLerntag = Math.max(1, countStudyDays(start, effectiveToday, ranges));
+
+    VTRemote.configure({
+      cfg: CONFIG.remote || {},
+      getState: currentState,
+      setState: st => { applyState(st); if (!document.getElementById('setup').classList.contains('hidden')) renderDashboard(totalLerntage); },
+      onStatus: setSyncStatus
+    });
+
+    if (!CONFIG.remote || !CONFIG.remote.tokenBlob) {
+      throw new Error('Der Speicher ist noch nicht eingerichtet (config.json: "remote.tokenBlob" fehlt).');
+    }
+    document.getElementById('gateTitle').textContent = CONFIG.title || 'Vokabeltraining';
+    show('gate');
+  } catch (e) {
+    fail('Der Trainer konnte nicht gestartet werden:<br><br><b>' + e.message + '</b><br><br>Prüfe, ob <code>config.json</code> und die Vokabel-CSV im selben Ordner wie diese Datei liegen und die Seite über GitHub Pages aufgerufen wird.');
+  }
+}
+
+// Zustand aus dem Remote-Speicher übernehmen (beim Öffnen und nach Zusammenführen)
+function applyState(st) {
+  st = st || {};
+  PROGRESS = st.progress || {};
+  manualUnlock = st.manualUnlock || 0;
+  OVERRIDES = st.overrides || {};
+  VOCAB.forEach(w => { if (OVERRIDES[w.id]) Object.assign(w, OVERRIDES[w.id]); });
+  const lessonsPerDay = Math.ceil(totalLektionen / totalLerntage);
+  const calendarUnlocked = Math.min(totalLektionen, lessonsPerDay * Math.min(currentLerntag, totalLerntage));
+  unlockedLektionen = Math.min(totalLektionen, Math.max(calendarUnlocked, manualUnlock));
+}
+
+function setSyncStatus(msg, kind) {
+  ['syncNote', 'syncNoteDone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'sync-note' + (kind ? ' ' + kind : '');
+  });
+}
+
+// Anmeldung bestehender Konten: Zugangsphrase + 8 persönliche Wörter
+async function openGate() {
+  const personal = document.getElementById('gPersonal').value;
+  const access = document.getElementById('gAccess').value;
+  const note = document.getElementById('gateNote');
+  note.textContent = '';
+  if (VTRemote.normWords(personal).split(' ').length !== 8 || VTRemote.normWords(access).split(' ').length !== 6) {
+    note.textContent = 'Bitte genau 8 persönliche Wörter und 6 Zugangswörter eingeben.';
+    return;
+  }
+  const btn = document.getElementById('gOpen');
+  btn.disabled = true;
+  note.className = 'sync-note';
+  note.textContent = 'Wird geöffnet …';
+  try {
+    const r = await VTRemote.unlock(personal, access, false);
+    applyState(r.state);
+    document.getElementById('gPersonal').value = '';
+    document.getElementById('gAccess').value = '';
+    renderDashboard(totalLerntage);
+    setSyncStatus('✓ Verbunden. Fortschritt wird automatisch verschlüsselt gespeichert.', 'ok');
+    show('setup');
+  } catch (e) {
+    note.className = 'sync-note err';
+    note.textContent = gateErrorText(e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function gateErrorText(e) {
+  const msgs = {
+    NOCFG: 'Der Speicher ist noch nicht eingerichtet (config.json: "remote.tokenBlob" fehlt).',
+    ZUGANG: 'Die Zugangsphrase stimmt nicht.',
+    NEW: 'Zu diesen Wörtern gibt es noch kein Konto. Prüfe die Wörter oder lege mit „Neues Konto“ eins an.',
+    WOERTER: 'Mit dieser Zugangsphrase lassen sich die Daten zu diesen Wörtern nicht entschlüsseln.'
+  };
+  return msgs[e.message] || ('Fehler: ' + e.message);
+}
+
+// ---------------------------------------------------------------------------
+// Neues Konto: 8 Wörter aus der Wortwolke wählen (Reihenfolge zählt)
+// ---------------------------------------------------------------------------
+let PICKED = [];   // gewählte Wörter in Klickreihenfolge
+let CLOUD = [];    // [{w, left, top, size}] - Wörter der aktuellen Wolke
+const CLOUD_SIZE = 100;
+
+function randomInt(n) { return crypto.getRandomValues(new Uint32Array(1))[0] % n; }
+function randRange(a, b) { return a + (crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296) * (b - a); }
+
+function startNewAccount() {
+  const access = document.getElementById('gAccess').value;
+  const note = document.getElementById('gateNote');
+  note.className = 'sync-note err';
+  if (VTRemote.normWords(access).split(' ').length !== 6) {
+    note.textContent = 'Bitte zuerst die 6 Zugangswörter eingeben.';
+    return;
+  }
+  note.textContent = '';
+  PICKED = [];
+  redrawCloud();
+  renderPicked();
+  show('wordGame');
+}
+
+function redrawCloud() {
+  const others = [];
+  const pickedSet = new Set(PICKED);
+  while (others.length < CLOUD_SIZE - PICKED.length) {
+    const w = window.EFF_WORDS[randomInt(window.EFF_WORDS.length)];
+    if (!pickedSet.has(w) && !others.includes(w)) others.push(w);
+  }
+  CLOUD = PICKED.map(w => ({ w })).concat(others.map(w => ({ w })));
+  CLOUD.forEach(c => {
+    c.left = randRange(0, 86); c.top = randRange(0, 90); c.size = randRange(12, 22);
+  });
+  const box = document.getElementById('cloud');
+  box.innerHTML = '';
+  CLOUD.forEach(c => {
+    const el = document.createElement('span');
+    el.className = 'cw' + (pickedSet.has(c.w) ? ' picked' : '');
+    el.dataset.w = c.w;
+    el.textContent = c.w;
+    el.style.left = c.left + '%';
+    el.style.top = c.top + '%';
+    el.style.fontSize = c.size + 'px';
+    el.onclick = () => togglePick(c.w);
+    box.appendChild(el);
+  });
+}
+
+function togglePick(w) {
+  const i = PICKED.indexOf(w);
+  if (i >= 0) PICKED.splice(i, 1);
+  else if (PICKED.length < 8) PICKED.push(w);
+  else return;
+  document.querySelectorAll('#cloud .cw').forEach(el => el.classList.toggle('picked', PICKED.includes(el.dataset.w)));
+  renderPicked();
+}
+
+function renderPicked() {
+  document.getElementById('pickedCount').textContent = PICKED.length + ' / 8 gewählt';
+  document.getElementById('pickedBar').textContent = PICKED.length
+    ? PICKED.map((w, i) => (i + 1) + '. ' + w).join('   ')
+    : 'Noch keine Wörter gewählt.';
+  document.getElementById('wgNext').disabled = PICKED.length !== 8;
+}
+
+function goConfirm() {
+  if (PICKED.length !== 8) return;
+  document.getElementById('wordsShown').textContent = PICKED.map((w, i) => (i + 1) + '. ' + w).join('  ·  ');
+  document.getElementById('wConfirm').value = '';
+  updateConfirm();
+  show('wordConfirm');
+}
+
+function updateConfirm() {
+  const typed = VTRemote.normWords(document.getElementById('wConfirm').value);
+  const ok = typed === PICKED.join(' ');
+  document.getElementById('wConfirmBtn').disabled = !ok;
+  const hint = document.getElementById('wConfirmHint');
+  hint.className = 'hint ' + (ok ? 'ok' : 'warn');
+  hint.textContent = typed === '' ? '' : (ok ? '✓ Stimmt überein' : 'Noch nicht identisch (gleiche Reihenfolge, Leerzeichen zwischen den Wörtern).');
+}
+
+async function confirmNewAccount() {
+  const note = document.getElementById('wConfirmNote');
+  const btn = document.getElementById('wConfirmBtn');
+  const access = document.getElementById('gAccess').value;
+  note.className = 'sync-note';
+  note.textContent = 'Konto wird angelegt …';
+  btn.disabled = true;
+  try {
+    const r = await VTRemote.unlock(PICKED.join(' '), access, true);
+    if (r.created) {
+      applyState(null);
+      if (legacyStateFromBrowser()) document.getElementById('migrateBtn').classList.remove('hidden');
+      VTRemote.markDirty();   // erste Speicherung nach Bestätigung der Wörter
+    } else {
+      // Die gewählten Wörter gehören bereits zu einem Konto: dessen Stand übernehmen, nichts überschreiben
+      applyState(r.state);
+    }
+    PICKED = [];
+    document.getElementById('wConfirm').value = '';
+    document.getElementById('gPersonal').value = '';
+    document.getElementById('gAccess').value = '';
+    renderDashboard(totalLerntage);
+    setSyncStatus('✓ Konto angelegt. Fortschritt wird automatisch verschlüsselt gespeichert.', 'ok');
+    show('setup');
+  } catch (e) {
+    note.className = 'sync-note err';
+    note.textContent = gateErrorText(e);
+    btn.disabled = false;
+  }
+}
+
+// Einmalige Übernahme des alten localStorage-Standes (nur auf Wunsch, nie automatisch)
+function adoptLegacy() {
+  const legacy = legacyStateFromBrowser();
+  if (!legacy) { document.getElementById('toolsNote').textContent = 'Kein alter Stand in diesem Browser gefunden.'; return; }
+  applyState(legacy);
+  VTRemote.markDirty();
+  document.getElementById('migrateBtn').classList.add('hidden');
+  renderDashboard(totalLerntage);
+  document.getElementById('toolsNote').className = 'sync-note ok';
+  document.getElementById('toolsNote').textContent = '✓ Alter Stand übernommen und verschlüsselt gespeichert. Der Browser-Stand bleibt unverändert erhalten.';
+}
+
+function backToDashboard() {
+  renderDashboard(totalLerntage);
+  show('setup');
+}
+
+function dueWordIds() {
+  const intervals = CONFIG.leitnerIntervals || [1,2,4,8,16];
+  return VOCAB.filter(w => w.lektion <= unlockedLektionen).filter(w => {
+    const p = PROGRESS[w.id];
+    if (!p) return true;
+    const interval = intervals[Math.min(p.box, intervals.length) - 1] || 1;
+    return (p.lastSeen + interval) <= currentLerntag;
+  }).map(w => w.id);
+}
+// Sortiert Wort-IDs nach Schwäche: nie gesehene Wörter zuerst, dann aufsteigend nach Box,
+// mit Zufalls-Tiebreak innerhalb derselben Box. Wird für die priorisierte Reihenfolge genutzt.
+function sortByWeakness(ids) {
+  return ids
+    .map(id => ({ id, box: PROGRESS[id] ? PROGRESS[id].box : -1, r: Math.random() }))
+    .sort((a, b) => a.box - b.box || a.r - b.r)
+    .map(x => x.id);
+}
+// Für die freiwillige Extra-Runde: alle freigeschalteten Wörter, unabhängig von Fälligkeit.
+// Am wenigsten sicher gekonnte (niedrigste Box) zuerst, damit die Extra-Zeit sinnvoll genutzt wird.
+function allUnlockedWordIdsByWeakness() {
+  return sortByWeakness(VOCAB.filter(w => w.lektion <= unlockedLektionen).map(w => w.id));
+}
+// Nächste Lektion manuell freischalten, unabhängig vom Kalender.
+// Wirkt nur nach vorne (kein Zurücksetzen möglich) und bleibt dauerhaft gespeichert.
+function unlockNextLektion() {
+  manualUnlock = Math.min(totalLektionen, Math.max(unlockedLektionen, manualUnlock) + 1);
+  unlockedLektionen = Math.max(unlockedLektionen, manualUnlock);
+  VTRemote.markDirty();
+  renderDashboard(totalLerntage);
+}
+// Gezielt üben: Auswahl (Lektion / Wiederholungswörter / Fehler / alle)
+function focusWordIds(val) {
+  const unlocked = VOCAB.filter(w => w.lektion <= unlockedLektionen);
+  let list;
+  if (val === 'all') list = unlocked;
+  else if (val === 'wdh') list = unlocked.filter(w => /Wdh/.test(w.notiz || ''));
+  else if (val === 'miss') list = unlocked.filter(w => PROGRESS[w.id] && PROGRESS[w.id].box === 1);
+  else list = unlocked.filter(w => String(w.lektion) === val.replace('l:', ''));
+  return list.map(w => w.id);
+}
+function renderFocusOptions() {
+  const sel = document.getElementById('focusSelect');
+  const prev = sel.value;
+  const opts = [['all', 'Alle freigeschalteten Wörter'], ['miss', 'Fehler (zuletzt falsch)'], ['wdh', 'Wiederholungswörter (Seite 70–73)']];
+  const lekts = [...new Set(VOCAB.filter(w => w.lektion <= unlockedLektionen).map(w => w.lektion))].sort((a,b) => b - a);
+  lekts.forEach(l => opts.push(['l:' + l, 'Lektion ' + l]));
+  sel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t} (${focusWordIds(v).length})</option>`).join('');
+  if (opts.some(o => o[0] === prev)) sel.value = prev;
+}
+// ---------------------------------------------------------------------------
+// Verben-Training (Stammformen). Die Formen werden aus dem Feld "begriff" gelesen.
+// ---------------------------------------------------------------------------
+const VERB_DASH = /^[-–—]$/;
+function parseVerb(w) {
+  const raw = w.begriff.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  const parts = raw.split(',').map(x => x.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const inf = parts[0];
+  if (/\s/.test(inf)) return null;
+  const plain = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const isActive = /(re|se)$/.test(plain(inf)) && /(o|sum)$/.test(plain(parts[1]));
+  const isDep = /i$/.test(plain(inf)) && !/re$/.test(plain(inf)) && /or$/.test(plain(parts[1]));
+  if (!isActive && !isDep) return null;
+  let perf = parts[2] || '', sup = parts[3] || '';
+  if (isDep) { sup = '–'; if (!perf) return null; }
+  else if (parts.length === 2) {
+    // Kurzschreibweise a-/i-Konjugation: parāre, parō -> parāvī, parātum
+    const m = inf.match(/^(.*[āī])re$/);
+    if (!m) return null;
+    perf = m[1] + 'vī'; sup = m[1] + 'tum';
+  } else if (parts.length === 3) sup = '–';
+  if (VERB_DASH.test(sup)) sup = '–';
+  return { inf, praes: parts[1], perf, sup };
+}
+function verbIds(ids) { return ids.filter(id => parseVerb(VOCAB[id])); }
+function startFocus() {
+  const val = document.getElementById('focusSelect').value;
+  const verbMode = document.getElementById('verbOnly').checked;
+  const ids = verbMode ? verbIds(focusWordIds(val)) : focusWordIds(val);
+  if (ids.length === 0) { document.getElementById('focusNote').textContent = 'In dieser Auswahl sind aktuell keine Wörter.'; return; }
+  startCustom(ids, 'focus', verbMode);
+}
+function startCustom(ids, modeName, verb) {
+  SESSION_MODE = modeName;
+  SESSION_VERB = !!verb;
+  LAST_SESSION_IDS = ids.slice();
+  SESSION_QUEUE = sortByWeakness(ids);
+  SESSION_DONE = 0; SESSION_WRONG = {}; SESSION_ANSWERS = 0; SESSION_FIRST_WRONG = 0;
+  mode = 'answering';
+  show('quiz');
+  renderCard();
+}
+function repeatLast() {
+  if (SESSION_MODE === 'due' || SESSION_MODE === 'extra') startSession(SESSION_MODE);
+  else startCustom(LAST_SESSION_IDS, SESSION_MODE, SESSION_VERB);
+}
+function repeatWrong() {
+  const ids = Object.keys(SESSION_WRONG).map(Number);
+  if (ids.length) startCustom(ids, 'wrong', SESSION_VERB);
+}
+function masteredCount() {
+  const maxBox = (CONFIG.leitnerIntervals || [1,2,4,8,16]).length;
+  return VOCAB.filter(w => w.lektion <= unlockedLektionen && PROGRESS[w.id] && PROGRESS[w.id].box >= maxBox).length;
+}
+
+function renderDashboard(totalLerntage) {
+  document.getElementById('setupEyebrow').textContent = `📖 ${CONFIG.sourceLabel} → ${CONFIG.targetLabel} · Vokabeltraining`;
+  document.getElementById('setupTitle').textContent = CONFIG.title || 'Vokabeltraining';
+  document.getElementById('setupDesc').textContent =
+    `${VOCAB.length} Wörter aus ${totalLektionen} Lektionen. Gut gekonnte Wörter kommen seltener dran, neue Lektionen werden nach und nach freigeschaltet.`;
+
+  const due = dueWordIds().length;
+  document.getElementById('statMastered').textContent = masteredCount();
+  document.getElementById('statLektionen').textContent = `${unlockedLektionen}/${totalLektionen}`;
+  document.getElementById('lektionFill').style.width = Math.round(unlockedLektionen/totalLektionen*100) + '%';
+
+  renderFocusOptions();
+  document.getElementById('startBtn').disabled = due === 0;
+  document.getElementById('startBtn').textContent = due === 0
+    ? 'Heute schon alles erledigt ✓'
+    : `✨ Training starten (${Math.min(due, CONFIG.sessionSize || 25)} Wörter)`;
+
+  const extraAvailable = VOCAB.some(w => w.lektion <= unlockedLektionen);
+  document.getElementById('extraBtn').disabled = !extraAvailable;
+
+  const upcomingCount = VOCAB.filter(w => w.lektion > unlockedLektionen).length;
+  const weiterBtn = document.getElementById('weiterBtn');
+  if (unlockedLektionen >= totalLektionen) {
+    weiterBtn.disabled = true;
+    weiterBtn.textContent = '→ Alle Lektionen bereits freigeschaltet';
+  } else {
+    weiterBtn.disabled = false;
+    weiterBtn.textContent = `→ Lektion ${unlockedLektionen + 1} freischalten (${upcomingCount} Wörter noch gesperrt)`;
+  }
+}
+
+// ============================================================================
+// Fortschritt/Vokabeln: Export & Import
+// ============================================================================
+function exportProgress() {
+  downloadFile('fortschritt_' + new Date().toISOString().slice(0,10) + '.json', JSON.stringify(PROGRESS, null, 2), 'application/json');
+  document.getElementById('toolsNote').textContent = '✓ Fortschrittsdatei heruntergeladen.';
+}
+function importProgress(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      applyState({ progress: imported, manualUnlock, overrides: OVERRIDES });
+      VTRemote.markDirty();
+      document.getElementById('toolsNote').textContent = '✓ Fortschritt geladen; wird verschlüsselt gespeichert.';
+      renderDashboard(totalLerntage);
+    } catch (e) {
+      document.getElementById('toolsNote').textContent = '⚠️ Datei konnte nicht gelesen werden: ' + e.message;
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+function exportVocab() {
+  downloadFile(CONFIG.csvFile || 'vokabeln.csv', serializeCSV(VOCAB), 'text/csv');
+  document.getElementById('toolsNote').textContent = '✓ Vokabelliste heruntergeladen – bei Bedarf im Repo ersetzen.';
+}
+
+// ============================================================================
+// Session
+// ============================================================================
+function startSession(modeArg) {
+  SESSION_MODE = modeArg || 'due';
+  SESSION_VERB = false;
+  const pool = SESSION_MODE === 'extra' ? allUnlockedWordIdsByWeakness() : sortByWeakness(dueWordIds());
+  SESSION_QUEUE = pool.slice(0, CONFIG.sessionSize || 25);
+  SESSION_DONE = 0;
+  SESSION_WRONG = {};
+  SESSION_ANSWERS = 0; SESSION_FIRST_WRONG = 0;
+  mode = 'answering';
+  show('quiz');
+  renderCard();
+}
+
+function renderCard() {
+  const total = SESSION_DONE + SESSION_QUEUE.length;
+  const modeLabel = ({extra:' · Extra-Runde', focus:' · Gezielt', wrong:' · Fehler'})[SESSION_MODE] || '';
+  document.getElementById('doneCount').textContent = `${SESSION_DONE} / ${total} in dieser Sitzung` + modeLabel;
+  document.getElementById('remainCount').textContent = `${SESSION_QUEUE.length} verbleibend`;
+  document.getElementById('progressFill').style.width = total ? Math.round(SESSION_DONE/total*100) + '%' : '0%';
+
+  if (SESSION_QUEUE.length === 0) { finishSession(); return; }
+  currentId = SESSION_QUEUE[0];
+  const word = VOCAB[currentId];
+  document.getElementById('qlabel').textContent = CONFIG.sourceLabel;
+  document.getElementById('qmeta').textContent = `Lektion ${word.lektion}`;
+  document.getElementById('questionText').textContent = word.begriff;
+  document.getElementById('quizCard').className = 'quiz-card';
+  document.getElementById('feedbackBox').classList.add('hidden');
+  document.getElementById('editForm').classList.add('hidden');
+  document.getElementById('editLink').classList.remove('hidden');
+  const input = document.getElementById('answerInput');
+  input.value = '';
+  mode = 'answering';
+  const vinfo = SESSION_VERB ? parseVerb(word) : null;
+  document.getElementById('answeringBox').classList.toggle('hidden', !!vinfo);
+  document.getElementById('verbBox').classList.toggle('hidden', !vinfo);
+  if (vinfo) {
+    document.getElementById('qlabel').textContent = 'Verb · Stammformen';
+    document.getElementById('questionText').textContent = vinfo.inf;
+    ['vMeaning','vPraes','vPerf','vSup'].forEach(id => document.getElementById(id).value = '');
+    const n = new Set(alternatives(word.uebersetzung.replace(/(^|[;,])\s*perf\.?\s*/gi, '$1'))).size;
+    document.getElementById('vMeaningLabel').textContent = `Bedeutung(en) – ${n} ${n === 1 ? 'Bedeutung' : 'Bedeutungen'}`;
+    setTimeout(() => document.getElementById('vMeaning').focus(), 30);
+  } else setTimeout(() => input.focus(), 30);
+}
+
+function checkAnswer(skip) {
+  const input = document.getElementById('answerInput');
+  if (skip !== true && input.value.trim() === '') return;
+  const word = VOCAB[currentId];
+  const accepted = alternatives(word.uebersetzung);
+  const isCorrect = skip === true ? false : accepted.includes(normalize(input.value));
+  lastCorrect = isCorrect;
+  mode = 'feedback';
+
+  const maxBox = (CONFIG.leitnerIntervals || [1,2,4,8,16]).length;
+  const p = PROGRESS[word.id] || { box: 0, lastSeen: 0 };
+  p.box = isCorrect ? Math.min(maxBox, p.box + 1) : 1;
+  p.lastSeen = currentLerntag;
+  PROGRESS[word.id] = p;
+  VTRemote.markDirty(); // Speichern erfolgt automatisch (verzögert, verschlüsselt auf GitHub)
+
+  SESSION_ANSWERS++;
+  if (!isCorrect) { if (!SESSION_WRONG[word.id]) SESSION_FIRST_WRONG++; SESSION_WRONG[word.id] = (SESSION_WRONG[word.id] || 0) + 1; }
+
+  document.getElementById('quizCard').className = 'quiz-card ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('answeringBox').classList.add('hidden');
+  document.getElementById('feedbackBox').classList.remove('hidden');
+  const fb = document.getElementById('feedbackMsg');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.textContent = isCorrect ? '✓ Richtig!' : (skip === true ? 'Lösung' : '✗ Nochmal üben');
+  const caBox = document.getElementById('correctAnswerBox');
+  if (!isCorrect) {
+    caBox.classList.remove('hidden');
+    caBox.innerHTML = 'Richtige Antwort: <b>' + word.uebersetzung + '</b>';
+  } else {
+    caBox.classList.add('hidden');
+  }
+}
+
+function checkVerb(skip) {
+  const word = VOCAB[currentId];
+  const v = parseVerb(word);
+  const val = id => document.getElementById(id).value.trim();
+  const given = { m: val('vMeaning'), p: val('vPraes'), f: val('vPerf'), s: val('vSup') };
+  if (skip !== true && !given.m && !given.p && !given.f && !given.s) return;
+  const expAlts = [...new Set(alternatives(word.uebersetzung.replace(/(^|[;,])\s*perf\.?\s*/gi, '$1')))];
+  const gotAlts = new Set(alternatives(given.m));
+  const okM = skip !== true && expAlts.every(a => gotAlts.has(a));
+  const form = (g, e) => skip !== true && normalize(g) === normalize(e);
+  const okP = form(given.p, v.praes), okF = form(given.f, v.perf);
+  const okS = skip !== true && (v.sup === '–' ? (VERB_DASH.test(given.s) || /^kein/i.test(given.s)) : normalize(given.s) === normalize(v.sup));
+  const isCorrect = okM && okP && okF && okS;
+  lastCorrect = isCorrect;
+  mode = 'feedback';
+  SESSION_ANSWERS++;
+  if (!isCorrect) { if (!SESSION_WRONG[word.id]) SESSION_FIRST_WRONG++; SESSION_WRONG[word.id] = (SESSION_WRONG[word.id] || 0) + 1; }
+
+  document.getElementById('quizCard').className = 'quiz-card ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('verbBox').classList.add('hidden');
+  document.getElementById('feedbackBox').classList.remove('hidden');
+  const fb = document.getElementById('feedbackMsg');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.textContent = isCorrect ? '✓ Richtig!' : (skip === true ? 'Lösung' : '✗ Nochmal üben');
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const line = (ok, label, exp, g) => `<div class="verb-line">${ok ? '✓' : '✗'} ${label}: <b>${esc(exp)}</b>${!ok && g ? ` <span style="opacity:.7">(deine Antwort: ${esc(g)})</span>` : ''}</div>`;
+  const caBox = document.getElementById('correctAnswerBox');
+  caBox.classList.remove('hidden');
+  caBox.innerHTML = line(okM, 'Bedeutung', word.uebersetzung, given.m) + line(okP, 'Präsens', v.praes, given.p) + line(okF, 'Perfekt', v.perf, given.f) + line(okS, 'Supinum', v.sup, given.s);
+}
+
+function nextWord() {
+  SESSION_QUEUE.shift();
+  SESSION_DONE++;
+  if (!lastCorrect) {
+    const insertAt = Math.min(SESSION_QUEUE.length, 4);
+    SESSION_QUEUE.splice(insertAt, 0, currentId);
+    SESSION_DONE--;
+  }
+  renderCard();
+}
+
+function finishSession() {
+  show('done');
+  const modeText = SESSION_MODE === 'extra' ? ' Extra-' : ' ';
+  const uniq = SESSION_DONE;
+  const pct = uniq ? Math.round((uniq - Object.keys(SESSION_WRONG).length) / uniq * 100) : 0;
+  document.getElementById('doneStats').innerHTML = `<div class="done-pct">${pct} % auf Anhieb richtig</div>${SESSION_DONE} Wörter in dieser${modeText}Sitzung geschafft.`;
+  document.getElementById('wrongBtn').classList.toggle('hidden', Object.keys(SESSION_WRONG).length === 0);
+  const hard = Object.entries(SESSION_WRONG)
+    .map(([id, count]) => ({ word: VOCAB[Number(id)], count }))
+    .sort((a,b) => b.count - a.count);
+  const box = document.getElementById('hardWordsBox');
+  if (hard.length > 0) {
+    let html = '<div class="hardlist"><div class="hardlist-title">Diese Wörter waren am schwierigsten:</div>';
+    hard.slice(0,15).forEach(h => {
+      html += '<div class="hardlist-item"><span>' + h.word.begriff + ' — ' + h.word.uebersetzung.split(/[;,]/)[0] + '</span><span class="cnt">' + h.count + '× falsch</span></div>';
+    });
+    html += '</div>';
+    box.innerHTML = html;
+  } else box.innerHTML = '';
+  VTRemote.markDirty();
+}
+
+// ============================================================================
+// Vokabel-Korrektur (während des Lernens)
+// ============================================================================
+let editPrevAnsweringVisible = true;
+function toggleEdit() {
+  const form = document.getElementById('editForm');
+  const isOpening = form.classList.contains('hidden');
+  if (isOpening) {
+    const word = VOCAB[currentId];
+    document.getElementById('editBegriffLabel').textContent = `Begriff (${CONFIG.sourceLabel})`;
+    document.getElementById('editUebLabel').textContent = `Übersetzung (${CONFIG.targetLabel})`;
+    document.getElementById('editBegriff').value = word.begriff;
+    document.getElementById('editUebersetzung').value = word.uebersetzung;
+    document.getElementById('editLektion').value = word.lektion;
+    document.getElementById('editSyncNote').textContent = '';
+    editPrevAnsweringVisible = !document.getElementById('answeringBox').classList.contains('hidden') ? 'answeringBox' : (!document.getElementById('verbBox').classList.contains('hidden') ? 'verbBox' : 'feedbackBox');
+    document.getElementById('answeringBox').classList.add('hidden');
+    document.getElementById('verbBox').classList.add('hidden');
+    document.getElementById('feedbackBox').classList.add('hidden');
+    form.classList.remove('hidden');
+    document.getElementById('editLink').classList.add('hidden');
+  } else {
+    form.classList.add('hidden');
+    document.getElementById('editLink').classList.remove('hidden');
+    document.getElementById(editPrevAnsweringVisible).classList.remove('hidden');
+  }
+}
+
+function saveWordEdit() {
+  const begriff = document.getElementById('editBegriff').value.trim();
+  const uebersetzung = document.getElementById('editUebersetzung').value.trim();
+  const lektion = parseInt(document.getElementById('editLektion').value, 10);
+  if (!begriff || !uebersetzung || !lektion) {
+    document.getElementById('editSyncNote').textContent = 'Bitte alle Felder ausfüllen.';
+    return;
+  }
+  const word = VOCAB[currentId];
+  word.begriff = begriff; word.uebersetzung = uebersetzung; word.lektion = lektion;
+
+  document.getElementById('questionText').textContent = begriff;
+  document.getElementById('qmeta').textContent = `Lektion ${lektion}`;
+
+  OVERRIDES[currentId] = { begriff, uebersetzung, lektion };
+  VTRemote.markDirty();
+
+  document.getElementById('editSyncNote').textContent = '✓ Korrektur gespeichert (verschlüsselt auf GitHub).';
+  setTimeout(toggleEdit, 1100);
+}
+
+document.getElementById('answerInput')?.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { if (mode === 'answering') checkAnswer(); else nextWord(); }
+});
+['vMeaning','vPraes','vPerf','vSup'].forEach((id, i, arr) => document.getElementById(id).addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  if (i < arr.length - 1) document.getElementById(arr[i+1]).focus(); else checkVerb();
+}));
+document.addEventListener('keydown', function(e) {
+  if (e.target && (e.target.id === 'answerInput' || /^v(Meaning|Praes|Perf|Sup)$/.test(e.target.id))) return;
+  if (e.key === 'Enter' && mode === 'feedback') nextWord();
+});
+
+init();
+</script>
+</body>
+</html>
