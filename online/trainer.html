@@ -632,7 +632,6 @@ async function confirmNewAccount() {
     const r = await VTRemote.unlock(PICKED.join(' '), access, true);
     if (r.created) {
       applyState(null);
-      if (legacyStateFromBrowser()) document.getElementById('migrateBtn').classList.remove('hidden');
       VTRemote.markDirty();   // erste Speicherung nach Bestätigung der Wörter
     } else {
       // Die gewählten Wörter gehören bereits zu einem Konto: dessen Stand übernehmen, nichts überschreiben
@@ -656,9 +655,9 @@ async function confirmNewAccount() {
 function adoptLegacy() {
   const legacy = legacyStateFromBrowser();
   if (!legacy) { document.getElementById('toolsNote').textContent = 'Kein alter Stand in diesem Browser gefunden.'; return; }
+  if (!confirm('Den alten Stand aus diesem Browser in dieses Konto übernehmen? Bitte nur, wenn der Browser von dir allein genutzt wurde.')) return;
   applyState(legacy);
   VTRemote.markDirty();
-  document.getElementById('migrateBtn').classList.add('hidden');
   renderDashboard(totalLerntage);
   document.getElementById('toolsNote').className = 'sync-note ok';
   document.getElementById('toolsNote').textContent = '✓ Alter Stand übernommen und verschlüsselt gespeichert. Der Browser-Stand bleibt unverändert erhalten.';
@@ -775,6 +774,9 @@ function masteredCount() {
 }
 
 function renderDashboard(totalLerntage) {
+  // Übernahme-Button: solange im Browser ein alter Stand liegt und dieses Konto noch keinen Fortschritt hat
+  const hasLegacy = !!legacyStateFromBrowser();
+  document.getElementById('migrateBtn').classList.toggle('hidden', !(hasLegacy && Object.keys(PROGRESS).length === 0));
   document.getElementById('setupEyebrow').textContent = `📖 ${CONFIG.sourceLabel} → ${CONFIG.targetLabel} · Vokabeltraining`;
   document.getElementById('setupTitle').textContent = CONFIG.title || 'Vokabeltraining';
   document.getElementById('setupDesc').textContent =
