@@ -494,6 +494,8 @@ function setSyncStatus(msg, kind) {
     el.textContent = msg;
     el.className = 'sync-note' + (kind ? ' ' + kind : '');
   });
+  // Nach dem ersten erfolgreichen Speichern existiert die Datei: Übernahme-Button ausblenden
+  if (kind === 'ok' && typeof renderDashboard === 'function' && typeof totalLerntage !== 'undefined') renderDashboard(totalLerntage);
 }
 
 // Anmeldung bestehender Konten: Zugangsphrase + 8 persönliche Wörter
@@ -774,9 +776,9 @@ function masteredCount() {
 }
 
 function renderDashboard(totalLerntage) {
-  // Übernahme-Button: solange im Browser ein alter Stand liegt und dieses Konto noch keinen Fortschritt hat
+  // Übernahme-Button: solange im Browser ein alter Stand liegt und für dieses Konto noch keine Datei auf GitHub existiert
   const hasLegacy = !!legacyStateFromBrowser();
-  document.getElementById('migrateBtn').classList.toggle('hidden', !(hasLegacy && Object.keys(PROGRESS).length === 0));
+  document.getElementById('migrateBtn').classList.toggle('hidden', !(hasLegacy && !VTRemote.hasRemoteFile()));
   document.getElementById('setupEyebrow').textContent = `📖 ${CONFIG.sourceLabel} → ${CONFIG.targetLabel} · Vokabeltraining`;
   document.getElementById('setupTitle').textContent = CONFIG.title || 'Vokabeltraining';
   document.getElementById('setupDesc').textContent =

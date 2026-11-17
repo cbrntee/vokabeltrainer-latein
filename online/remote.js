@@ -214,6 +214,8 @@
   window.addEventListener('pagehide', () => { if (S.dirty) save({ keepalive: true }); });
 
   global.VTRemote = {
-    normWords, encryptToken, unlockToken, configure, unlock, markDirty, saveNow, mergeStates
+    normWords, encryptToken, unlockToken, configure, unlock, markDirty, saveNow, mergeStates,
+    // true, sobald die Datei dieses Kontos auf GitHub existiert (beim Öffnen oder nach dem ersten Speichern)
+    hasRemoteFile: () => !!S.sha
   };
 })(window);
