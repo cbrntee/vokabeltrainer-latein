@@ -68,7 +68,7 @@ begriff;uebersetzung;lektion;notiz
 "ante villam";"vor dem Landhaus";12;A
 "anteā (Adv.)";"vorher, früher";25;A
 "antīquus, a, um";"alt, altertümlich";22;A
-"aperīre, aperiō, aperuī";"aufdecken, öffnen";38;A
+"aperīre, aperiō, aperuī";"aufdecken, öffnen";38;A|Wdh-L75
 "apertus, a, um";"offen, offenkundig";63;A
 "Apollō, Apollinis (m)";"Apollon, Gott der Künste";44;A
 "appellāre, appellō";"anrufen; nennen";57;A
@@ -145,7 +145,7 @@ begriff;uebersetzung;lektion;notiz
 "circiter (Adv.)";"ungefähr";50;A_B
 "cibus";"Nahrung, Speise, Futter";6;A_B
 "centum (indekl.)";"hundert";49;A_B
-"cēterī, ae, a";"die übrigen";22;A_B
+"cēterī, ae, a";"die übrigen";22;A_B|Wdh-L76
 "Cerberus";"Zerberus, der dreiköpfige Höllenhund";30;A_B
 "circum (Präp. m. Akk.)";"um ... herum";33;A_B
 "circum mūrōs";"um die Mauern (herum)";33;A_B
@@ -154,7 +154,7 @@ begriff;uebersetzung;lektion;notiz
 "cīvitās, cīvitātis (f)";"Gemeinde, Staat";21;A_B
 "clāmāre, clāmō";"laut rufen, schreien";13;A_B
 "clam (Adv.)";"heimlich";56;A_B
-"clārus, a, um";"klar, hell, berühmt";19;A_B
+"clārus, a, um";"klar, hell, berühmt";19;A_B|Wdh-L74
 "clāmor, clāmōris (m)";"Geschrei, Lärm";20;A_B
 "clēmentia";"Milde, Nachsicht";51;A_B
 "cōgitāre, cōgitō";"denken, beabsichtigen";32;A_B
@@ -163,7 +163,7 @@ begriff;uebersetzung;lektion;notiz
 "commūnis, e";"gemeinsam, allgemein";37;A_B
 "commovēre, commoveō, commōvī, commōtum";"bewegen, veranlassen";58;A_B
 "compertum est / -e";"es ist bekannt, dass";68;A_B
-"comprehendere, comprehendō, comprehendī, comprehēnsum";"ergreifen, festnehmen";50;A_B
+"comprehendere, comprehendō, comprehendī, comprehēnsum";"ergreifen, festnehmen";50;A_B|Wdh-L74
 "concēdere, concēdō, concessī, concessum";"erlauben, gestatten; nachgeben, weichen";29;A_B
 "Concordia";"Göttin der Eintracht; Eintracht, Einigkeit";11;A_B
 "condere, condō, condidī, conditum";"gründen; verbergen, verwahren";36;A_B
@@ -206,7 +206,7 @@ begriff;uebersetzung;lektion;notiz
 "cum (Subj. m. Ind.)";"als, nachdem";25;C
 "cum (Subj. m. Konj.)";"als (plötzlich); (immer) wenn, während; obwohl";26;C
 "cūnctī, ae, a";"alle (zusammen)";14;C
-"cupere, cupiō, cupīvī, cupītum";"wünschen, verlangen";63;C
+"cupere, cupiō, cupīvī, cupītum";"wünschen, verlangen";63;C|Wdh-L75
 "cūr?";"warum?";2;C
 "cūra";"Pflege, Sorge";38;C
 "cūrae esse";"Sorge bereiten";61;C
@@ -744,7 +744,7 @@ begriff;uebersetzung;lektion;notiz
 "pulcher, pulchra, pulchrum";"schön";15;P_Q
 "putāre, putō";"glauben, meinen; halten für";31;P_Q
 "quadrāgintā (indekl.)";"vierzig";49;P_Q
-"quaerere, quaerō, quaesīvī, quaesītum";"erwerben wollen, suchen, fragen (jdn.)";32;P_Q
+"quaerere, quaerō, quaesīvī, quaesītum";"erwerben wollen, suchen, fragen (jdn.)";32;P_Q|Wdh-L74
 "ē mercātōre pretium quaerere";"den Händler nach dem Preis fragen";60;P_Q
 "quam";"als, wie";18;P_Q
 "quam ... quam";"mehr ... als";18;P_Q
@@ -806,9 +806,9 @@ begriff;uebersetzung;lektion;notiz
 "Rōmānus, a, um";"römisch; Subst. Römer, der Einwohner Roms";9;R_S
 "Rōmulus / Remus";"Romulus / Remus, Zwillingsbrüder und sagenhafte Gründer Roms";34;R_S
 "Sabīnus, a, um";"sabinisch; Subst. Sabiner";38;R_S
-"sacer, sacra, sacrum";"heilig, geweiht";62;R_S
+"sacer, sacra, sacrum";"heilig, geweiht";62;R_S|Wdh-L74
 "sacerdōs, sacerdōtis (m/f)";"Priester(in)";48;R_S
-"sacrum";"Opfer, Heiligtum";18;R_S
+"sacrum";"Opfer, Heiligtum";18;R_S|Wdh-L76
 "sacrum facere";"ein Opfer bringen, opfern";18;R_S
 "saepe (Adv.)";"oft";4;R_S
 "salūs, salūtis (f)";"Gesundheit, Rettung, Gruß, Glück";26;R_S
@@ -854,7 +854,7 @@ begriff;uebersetzung;lektion;notiz
 "sibi (Dat.)";"sich";32;S_T
 "sīc (Adv.)";"so";8;S_T|Wdh-L72
 "Sicilia";"Sizilien";10;S_T
-"sīgnum";"Merkmal, Zeichen; Statue";34;S_T
+"sīgnum";"Merkmal, Zeichen; Statue";34;S_T|Wdh-L76
 "silentium";"Schweigen";62;S_T
 "silva";"Wald";1;S_T
 "simul (Adv.)";"gleichzeitig, zugleich";58;S_T
@@ -897,7 +897,7 @@ begriff;uebersetzung;lektion;notiz
 "subitō (Adv.)";"plötzlich";5;S_T
 "suī, suōrum (m Pl.)";"die Seinen, die Ihren, seine (ihre) Leute";65;S_T
 "Sulla (m)";"Sulla, röm. Politiker im 1. Jh. v. Chr.";21;S_T
-"summus, a, um";"der (die, das) höchste, oberste";18;S_T
+"summus, a, um";"der (die, das) höchste, oberste";18;S_T|Wdh-L76
 "summus mōns";"Berggipfel, die höchste Stelle des Berges";59;S_T
 "superāre, superō";"besiegen, überwinden, übertreffen";9;S_T
 "superbus, a, um";"stolz, überheblich";40;S_T
@@ -1037,7 +1037,7 @@ begriff;uebersetzung;lektion;notiz
 "vīs, f (Akk. vim, Abl. vī)";"Gewalt, Kraft, Menge";52;V|Wdh-L70
 "vīta";"Leben";15;V
 "vīvere, vīvō, vīxī";"leben";32;V
-"vītāre, vītō";"meiden, vermeiden";55;V
+"vītāre, vītō";"meiden, vermeiden";55;V|Wdh-L75
 "vitam agere";"ein Leben führen, leben";38;V
 "vīcīnum agere";"ein Leben führen, leben";38;V
 "vix (Adv.)";"kaum, (nur) mit Mühe";29;V
@@ -1062,7 +1062,7 @@ begriff;uebersetzung;lektion;notiz
 "convocāre, convocō";"zusammenrufen, versammeln";70;neu-L70
 "nōscere, nōscō, nōvī, nōtum";"erkennen, kennenlernen";70;neu-L70
 "Alexander, Alexandrī";"Alexander der Große, König von Makedonien";70;neu-L70
-"omnīnō (Adv.)";"insgesamt, überhaupt, völlig";70;neu-L70
+"omnīnō (Adv.)";"insgesamt, überhaupt, völlig";70;neu-L70|Wdh-L75
 "collocāre, collocō";"aufstellen, unterbringen";70;neu-L70
 "claudere, claudō, clausī, clausum";"schließen, abschließen, einschließen";70;neu-L70
 "fidūcia";"das Vertrauen";70;neu-L70
@@ -1127,3 +1127,58 @@ begriff;uebersetzung;lektion;notiz
 "aut ... aut";"entweder ... oder";73;neu-L73
 "ita (Adv.)";"so";70;Wdh-L70
 "vinculum";"das Band, die Fessel; Pl. das Gefängnis";73;Wdh-L73
+"aliquis, aliquid (subst.)";"(irgend)jemand";74;neu-L74
+"mōtus, mōtūs (m)";"die Bewegung";74;neu-L74
+"sīdus, sīderis (n)";"der Stern, das Sternbild";74;neu-L74
+"cursus, cursūs (m)";"der Lauf";74;neu-L74
+"imprīmīs (Adv.)";"besonders, vor allem";74;neu-L74
+"aliquī, aliqua, aliquod (adj.)";"(irgend)ein";74;neu-L74
+"opīniō, opīniōnis (f)";"die Meinung, der (gute) Ruf";74;neu-L74
+"respondēre, respondeō, respondī, respōnsum";"antworten";74;neu-L74
+"obscūrus, a, um";"dunkel, unbekannt";74;neu-L74
+"dīvīnus, a, um";"göttlich";74;neu-L74
+"cōnstāre, cōnstō, cōnstitī (ex m. Abl.)";"bestehen aus";74;neu-L74
+"Ōrātiō ē complūribus partibus cōnstat.";"Eine Rede besteht aus mehreren Teilen.";74;neu-L74
+"cāsus, cāsūs (m)";"der Fall, der Zufall";74;neu-L74
+"cāsus cīvitātis";"der Untergang des Staates";74;neu-L74
+"cāsū venīre";"zufällig kommen";74;neu-L74
+"Croesus";"Krösus (König von Lydien)";74;neu-L74
+"sapere, sapiō, sapīvī";"Verstand haben, Geschmack haben";74;neu-L74
+"nec / neque";"und nicht, auch nicht";74;neu-L74
+"sacrificium";"das Opfer";75;neu-L75
+"ops, opis (f)";"die Hilfe, die Kraft; Pl. die Macht, die Mittel, der Reichtum";75;neu-L75
+"opem petere";"um Hilfe bitten";75;neu-L75
+"fātum";"das Schicksal, der Götterspruch";75;neu-L75
+"cupiditās, cupiditātis (f; m. Gen.)";"das (heftige) Verlangen (nach), die Leidenschaft";75;neu-L75
+"cupiditās glōriae";"das Verlangen nach Ruhm";75;neu-L75
+"hūmānus, a, um";"menschlich; gebildet";75;neu-L75
+"vātēs, vātis (m/f)";"der/die Seher(in), der/die Dichter(in), der/die Sänger(in)";75;neu-L75
+"brevis, breve";"kurz";75;neu-L75
+"brevī (tempore)";"nach kurzer Zeit, bald (darauf)";75;neu-L75
+"mī fīlī (Vok.)";"mein Sohn";75;neu-L75
+"āiō (3. Pers. Sg. ait, 3. Pers. Pl. āiunt)";"behaupte(te) ich, sag(t)e ich";75;neu-L75
+"versus, versūs (m)";"der Vers";75;neu-L75
+"compōnere, compōnō, composuī, compositum";"abfassen, ordnen, schlichten; vergleichen";75;neu-L75
+"poēta, poētae (m)";"der Dichter";75;neu-L75
+"rēgius, a, um";"königlich";75;neu-L75
+"(domus) rēgia";"das königliche Haus, der (Königs-)Palast";75;neu-L75
+"testis, testis (m/f; Gen. Pl. -ium)";"der Zeuge, die Zeugin";75;neu-L75
+"recipere, recipiō, recēpī, receptum";"zurücknehmen, aufnehmen, wiederbekommen";75;neu-L75
+"salūtem dīcere (m. Dat.)";"(jdn.) grüßen, begrüßen";76;neu-L76
+"gaudium";"die Freude";76;neu-L76
+"epistula";"der Brief";76;neu-L76
+"contingere, contingō, contigī, contāctum";"berühren; gelingen";76;neu-L76
+"spectāculum";"das Schauspiel";76;neu-L76
+"initium";"der Anfang, der Eingang";76;neu-L76
+"dēmum (Adv.)";"endlich, erst";76;neu-L76
+"prior, prius (Gen. prioris)";"der erste, der frühere, der vordere";76;neu-L76
+"sōlācium";"der Trost, das Trostmittel";76;neu-L76
+"sōlāciō esse";"Trost bringen";76;neu-L76
+"ūnā (Adv.)";"zugleich, zusammen";76;neu-L76
+"perficere, perficiō, perfēcī, perfectum";"erreichen, fertigstellen, vollenden";76;neu-L76
+"clādēs, clādis (f; Gen. Pl. -ium)";"die Niederlage, das Unglück, das Unheil";76;neu-L76
+"diūtius (Adv.)";"länger";76;neu-L76
+"cernere, cernō";"sehen, bemerken";76;neu-L76
+"comperīre, comperiō, comperī, compertum";"(genau) erfahren";74;Wdh-L74
+"oportet";"es gehört sich, es ist nötig";75;Wdh-L75
+"incipere, incipiō, coepī (incēpī), inceptum";"anfangen, beginnen";76;Wdh-L76
